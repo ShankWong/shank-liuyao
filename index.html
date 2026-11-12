@@ -1,0 +1,1898 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>六爻装卦</title>
+<style>
+  :root{
+    --ink:#2b2622;
+    --ink2:#6b6257;
+    --ink3:#9a9084;
+    --line:#ddd3c2;
+    --line2:#eee6d8;
+    --paper:#f6f2e9;
+    --card:#fffdf8;
+    --red:#a3352a;
+    --gold:#8a6d3b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Songti SC","SimSun","Noto Serif CJK SC",Georgia,serif;
+    font-size:16px;
+    line-height:1.65;
+  }
+  .banner{
+    background:#3a2f2a;
+    color:#f0e4d2;
+    padding:9px 16px;
+    text-align:center;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:13px;
+    letter-spacing:.4px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 22px 64px;}
+  h1{font-size:20px;margin:0 0 4px;letter-spacing:3px;font-weight:600;}
+  .sub{color:var(--ink2);font-size:13px;margin-bottom:22px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:18px 20px 20px;
+    margin-bottom:22px;
+    box-shadow:0 1px 2px rgba(80,60,30,.04);
+  }
+  .card h2{
+    font-size:13px;
+    margin:0 0 16px;
+    color:var(--gold);
+    letter-spacing:4px;
+    font-weight:600;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  }
+
+  /* ---------- 摇卦录入 ---------- */
+  .in-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:6px 0;
+    border-bottom:1px dashed var(--line2);
+  }
+  .in-row:last-of-type{border-bottom:none;}
+  .pos{
+    flex:0 0 30px;
+    text-align:center;
+    font-size:15px;
+    color:var(--gold);
+    letter-spacing:1px;
+  }
+  .opts{display:flex;gap:6px;flex:0 0 auto;}
+  .opt{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:13px;
+    color:var(--ink2);
+    background:#fbf7ee;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:4px 10px;
+    cursor:pointer;
+    white-space:nowrap;
+    min-width:72px;
+    text-align:center;
+    transition:background .12s,border-color .12s,color .12s;
+  }
+  .opt:hover{border-color:#b9a67f;color:var(--ink);}
+  .opt b{font-family:Georgia,serif;font-weight:700;margin-left:4px;}
+  .opt.on{
+    background:#3a2f2a;
+    border-color:#3a2f2a;
+    color:#f5ecd9;
+  }
+  .opt.on b{color:#f0c98a;}
+
+  .pv{
+    margin-left:auto;
+    flex:0 0 104px;
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .mk{
+    flex:0 0 14px;
+    width:14px;
+    text-align:center;
+    color:var(--red);
+    font-weight:700;
+    font-size:15px;
+    font-family:Georgia,serif;
+  }
+
+  .b{display:inline-block;height:10px;border-radius:1px;}
+  .b.yang{width:58px;background:var(--ink);}
+  .b.yin{width:58px;background:none;display:inline-flex;gap:10px;}
+  .b.yin i{display:block;width:24px;height:10px;background:var(--ink);border-radius:1px;}
+  .moving .b.yang{background:var(--red);}
+  .moving .b.yin{background:none;}
+  .moving .b.yin i{background:var(--red);}
+  .b.ghost{width:58px;visibility:hidden;}
+
+  /* ---------- 时间栏 ---------- */
+  .time-row{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px 18px;
+    margin-top:16px;
+    padding-top:14px;
+    border-top:1px dashed var(--line2);
+  }
+  .time-row label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    color:var(--ink2);
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  }
+  .time-row label em{
+    font-style:normal;
+    color:var(--gold);
+    font-size:12px;
+    letter-spacing:2px;
+  }
+  .time-row input[type=date],
+  .time-row select{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    background:#fbf7ee;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:5px 8px;
+    outline:none;
+  }
+  .time-row input[type=date]:focus,
+  .time-row select:focus{border-color:var(--gold);}
+  .btn{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:13px;
+    color:var(--ink2);
+    background:#fbf7ee;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:5px 12px;
+    cursor:pointer;
+  }
+  .btn:hover{border-color:#b9a67f;color:var(--ink);}
+  .hint{
+    flex:1 1 100%;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:12.5px;
+    color:var(--ink3);
+    line-height:1.7;
+  }
+  .hint.warn{color:var(--red);}
+
+  /* ---------- 盘头 ---------- */
+  .head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .names{
+    display:flex;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:12px;
+    font-size:22px;
+    letter-spacing:2px;
+  }
+  .names small{font-size:12px;color:var(--ink2);letter-spacing:1px;margin-left:7px;}
+  .arrow{color:var(--ink3);font-size:16px;}
+
+  .toggle{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:12px;
+    color:var(--ink3);
+    text-align:right;
+  }
+  .seg-group{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-top:6px;}
+  .seg{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:12px;
+    padding:5px 11px;
+    background:#fbf7ee;
+    color:var(--ink2);
+    border:none;
+    border-right:1px solid var(--line);
+    cursor:pointer;
+  }
+  .seg:last-child{border-right:none;}
+  .seg.on{background:#3a2f2a;color:#f5ecd9;}
+  .seg[disabled]{opacity:.45;cursor:default;}
+
+  .stamp{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 30px;
+    padding-top:11px;
+    border-top:1px dashed var(--line2);
+    font-size:14px;
+    line-height:1.9;
+  }
+  .kv{display:flex;align-items:baseline;gap:8px;}
+  .kv em{
+    font-style:normal;
+    color:var(--gold);
+    font-size:12px;
+    letter-spacing:2px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  }
+
+  .cross{
+    margin-top:12px;
+    padding:10px 14px;
+    background:#fdf6ec;
+    border:1px solid #e6d5b8;
+    border-left:3px solid var(--red);
+    border-radius:3px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:13px;
+    line-height:1.8;
+    color:#6b4a2f;
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px 12px;
+  }
+  .cross .seg-group{margin-top:0;}
+
+  /* ---------- 盘面 ---------- */
+  table.pan{width:100%;table-layout:fixed;border-collapse:collapse;margin-top:16px;}
+  table.pan th,
+  table.pan td{
+    padding:10px 4px;
+    text-align:center;
+    vertical-align:middle;
+    border-bottom:1px solid var(--line2);
+    overflow:hidden;
+  }
+  table.pan thead th{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:12px;
+    font-weight:600;
+    color:var(--gold);
+    letter-spacing:3px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:8px;
+  }
+  table.pan thead tr:first-child th{border-bottom:none;padding-bottom:2px;}
+  table.pan tbody tr:last-child td{border-bottom:none;}
+  td.p{color:var(--gold);font-size:15px;letter-spacing:1px;}
+  td.god{font-size:15px;letter-spacing:2px;}
+  td.qin{font-size:16px;letter-spacing:1px;}
+  .fucell{display:inline-flex;justify-content:center;width:100%;}
+  .fucell span{font-size:13px;color:var(--gold);white-space:nowrap;}
+  .nacell{display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+  .nacell .na-v{font-size:16px;letter-spacing:1px;white-space:nowrap;}
+  .ycell{display:inline-flex;align-items:center;gap:8px;}
+  .sycell{display:inline-flex;justify-content:center;width:100%;}
+
+  .shi{
+    display:inline-block;
+    color:var(--gold);
+    border:1px solid #c8b48a;
+    border-radius:3px;
+    padding:0 6px;
+    font-size:12px;
+    line-height:19px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  }
+  .kong{
+    display:inline-block;
+    width:24px;
+    text-align:center;
+    color:var(--ink3);
+    border:1px solid var(--line);
+    border-radius:3px;
+    font-size:11px;
+    line-height:15px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    flex:0 0 24px;
+  }
+  .kong.off{visibility:hidden;border-color:transparent;}
+  .empty{color:#d8d0c2;}
+
+  /* ---------- 爻位关系 ---------- */
+  .rels{
+    margin-top:16px;
+    padding:12px 14px;
+    background:#fbf8f1;
+    border:1px solid var(--line2);
+    border-radius:3px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:13px;
+    line-height:2;
+    color:var(--ink2);
+  }
+  .rels-h{
+    color:var(--gold);
+    font-size:12px;
+    letter-spacing:4px;
+    margin-bottom:4px;
+  }
+  .rels-line{white-space:normal;}
+  td.wang{
+    font-size:15px;
+    color:var(--gold);
+    letter-spacing:1px;
+  }
+
+  .legend{
+    margin-top:16px;
+    padding-top:12px;
+    border-top:1px dashed var(--line2);
+    font-size:13px;
+    color:var(--ink3);
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    letter-spacing:.5px;
+    line-height:1.9;
+  }
+  .legend b{color:var(--red);font-weight:700;}
+  .legend em{color:var(--gold);font-style:normal;}
+
+  .placeholder{
+    padding:44px 0;
+    text-align:center;
+    color:var(--ink3);
+    font-size:15px;
+    letter-spacing:2px;
+  }
+
+  /* ---------- 操作条 ---------- */
+  .actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--line2);
+  }
+  .note{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex:1 1 260px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:13px;
+    color:var(--ink2);
+  }
+  .note em{font-style:normal;color:var(--gold);font-size:12px;letter-spacing:2px;}
+  .note input{
+    flex:1;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:13px;
+    color:var(--ink);
+    background:#fbf7ee;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:5px 8px;
+    outline:none;
+  }
+  .note input:focus{border-color:var(--gold);}
+
+  /* ---------- 存档 ---------- */
+  .case-bar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .case-empty{
+    color:var(--ink3);
+    font-size:13px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    padding:10px 0;
+  }
+  .case-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:9px 0;
+    border-bottom:1px dashed var(--line2);
+    font-size:14px;
+  }
+  .case-item:last-child{border-bottom:none;}
+  .case-when{
+    flex:0 0 172px;
+    color:var(--ink2);
+    font-size:13px;
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  }
+  .case-gua{flex:0 0 210px;letter-spacing:1px;}
+  .case-gua small{color:var(--ink3);font-size:12px;margin-left:6px;}
+  .case-note{
+    flex:1;
+    color:var(--ink2);
+    font-size:13px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .case-act{display:flex;gap:6px;flex:0 0 auto;}
+  .mini{
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:12px;
+    color:var(--ink2);
+    background:#fbf7ee;
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:3px 9px;
+    cursor:pointer;
+  }
+  .mini:hover{border-color:#b9a67f;color:var(--ink);}
+  .mini.danger:hover{border-color:var(--red);color:var(--red);}
+
+  /* 表格宽度固定，窄屏时在本容器内横滑，不撑破整页 */
+  .tablewrap{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* ---------- 手机端（仅在窄屏生效，宽屏以下规则一条都不读） ---------- */
+  .opts-sel{ display:none; }
+  .mobile-bar{ display:none; }
+  .imgbox{ display:none; }
+
+  @media (max-width: 600px){
+    h1{ font-size:18px; }
+    .wrap{ padding:16px 12px 132px; }
+    .card{ padding:14px 14px 16px; }
+
+    .in-row{ gap:8px; padding:8px 0; }
+    .pos{ flex:0 0 24px; font-size:14px; }
+    .opts{ display:none; }
+    .opts-sel{ display:block; flex:1 1 0; min-width:0; }
+    .opts-sel select{
+      width:100%;
+      min-width:0;
+      font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+      font-size:16px;
+      color:var(--ink);
+      background:#fbf7ee;
+      border:1px solid var(--line);
+      border-radius:4px;
+      padding:9px 8px;
+      outline:none;
+    }
+    .opts-sel select:focus{ border-color:var(--gold); }
+    .pv{ flex:0 0 84px; }
+    .b.yang{ width:64px; }
+    .b.yin{ width:64px; gap:10px; }
+    .b.yin i{ width:27px; }
+
+    .time-row{ flex-direction:column; align-items:stretch; gap:10px; }
+    .time-row label{ width:100%; flex:0 0 auto; justify-content:space-between; }
+    .time-row label.note{ flex:0 0 auto; }
+    .time-row input[type=date],
+    .time-row select{ flex:1; min-width:0; }
+    .hint{ flex:0 0 auto; }
+    .btn{ padding:9px 12px; }
+
+    .mobile-bar.show{
+      display:flex;
+      position:fixed; left:0; right:0; bottom:0; z-index:60;
+      align-items:center;
+      padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+      background:rgba(255,253,248,.97);
+      border-top:1px solid var(--line);
+      box-shadow:0 -2px 8px rgba(80,60,30,.06);
+    }
+    .mobile-bar .go{
+      flex:1;
+      font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+      font-size:16px;
+      color:#f5ecd9;
+      background:#3a2f2a;
+      border:none;
+      border-radius:4px;
+      padding:12px;
+    }
+
+    .imgbox.on{
+      display:flex;
+      position:fixed; inset:0; z-index:80;
+      background:rgba(30,24,20,.93);
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      padding:12px;
+    }
+    .imgbox img{
+      max-width:100%; max-height:80vh;
+      border-radius:2px;
+      box-shadow:0 4px 20px rgba(0,0,0,.45);
+    }
+    .imgbox .tip,
+    .imgbox .close{
+      font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+      color:#e8dcc8;
+      font-size:13px;
+    }
+    .imgbox .close{
+      background:transparent;
+      border:1px solid #6b6257;
+      border-radius:4px;
+      padding:8px 20px;
+      font-size:14px;
+    }
+  }
+
+  /* ---------- 打印 ---------- */
+  .print-only{ display:none; }
+  @media print{
+    .print-only{ display:inline !important; }
+    .screen-only{ display:none !important; }
+    .seg-group{ display:none !important; }
+    @page{ size:A4 landscape; margin:8mm; }
+    html, body{ background:#fff !important; }
+    .banner, h1, .sub, .no-print, .actions, .card h2{ display:none !important; }
+    .wrap{ max-width:none; margin:0; padding:0; }
+    table.pan th, table.pan td{ padding:6px 4px !important; }
+    .rels{ font-size:11px !important; line-height:1.65 !important; margin-top:10px !important; padding:7px 11px !important; }
+    .legend{ font-size:9.5pt !important; line-height:1.6 !important; margin-top:10px !important; padding-top:8px !important; }
+    .card{
+      border:none !important;
+      box-shadow:none !important;
+      background:#fff !important;
+      padding:0 !important;
+      margin:0 !important;
+      break-inside:avoid;
+    }
+    .tablewrap{ overflow:visible !important; }
+    #result{ break-inside:avoid; }
+
+    /* 爻符改用上边框绘制：不依赖背景色，任何打印设置都能出 */
+    .b{ height:0 !important; background:none !important; border-radius:0 !important; }
+    .b.yang{ width:58px !important; border-top:9px solid #2b2622; }
+    .b.yin{ display:inline-flex !important; width:58px !important; gap:10px; background:none !important; }
+    .b.yin i{ height:0 !important; background:none !important; border-top:9px solid #2b2622; }
+    .moving .b.yang, .moving .b.yin i{ border-top-color:#a3352a !important; }
+    .b.ghost{ visibility:hidden !important; }
+
+    table.pan th, table.pan td{ border-bottom-color:#c8c2b6 !important; }
+    table.pan thead th{ border-bottom-color:#8a8378 !important; }
+    .legend{ color:#55504a !important; font-size:10.5pt; }
+    .cross{ background:#fff !important; }
+    .rels{ background:#fff !important; border-color:#c8c2b6 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  六爻装卦 · 纯本地离线 · 不联网、不写系统设置
+</div>
+
+<div class="wrap">
+
+  <h1>六爻装卦</h1>
+  <div class="sub">上爻在顶，初爻在底。从最下面一行开始点，点齐六爻自动出盘。</div>
+
+  <section class="card no-print">
+    <h2>摇 卦 录 入</h2>
+    <div id="rows"></div>
+    <div class="time-row">
+      <label><em>日期</em><input type="date" id="theDate"></label>
+      <label><em>时辰</em><select id="theHour"></select></label>
+      <label class="note"><em>所问</em><input type="text" id="theNote" placeholder="所问何事，可空"></label>
+      <button class="btn" id="btnNow" type="button">取当前时间</button>
+      <div class="hint" id="timeHint"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>排 盘 结 果</h2>
+    <div id="result"></div>
+    <div class="actions" id="actions" style="display:none">
+      <button class="btn" id="btnSave" type="button">存入卦例</button>
+      <button class="btn" id="btnPng" type="button">导出图片</button>
+      <button class="btn" id="btnPrint" type="button">打印 / 存PDF</button>
+      <span class="hint" id="actHint" style="flex:1 1 100%"></span>
+    </div>
+  </section>
+
+  <section class="card no-print">
+    <h2>卦 例 存 档</h2>
+    <div class="case-bar">
+      <button class="btn" id="btnBackup" type="button">导出全部备份</button>
+      <button class="btn" id="btnRestore" type="button">导入备份</button>
+      <input type="file" id="fileRestore" accept=".json,application/json" style="display:none">
+      <span class="hint" id="storeHint" style="flex:1 1 100%"></span>
+    </div>
+    <div id="caseList"></div>
+  </section>
+
+</div>
+
+<div class="mobile-bar" id="mobileBar">
+  <button class="go" id="btnMobilePng" type="button">生成图片</button>
+</div>
+
+<div class="imgbox" id="imgbox">
+  <img id="imgPreview" alt="排盘图">
+  <div class="tip">长按图片 → 保存到相册</div>
+  <button class="close" id="imgClose" type="button">关闭</button>
+</div>
+
+<script>
+/* 在线访问时注册离线缓存；用本地文件（file://）打开时自动跳过，不影响任何现有用法 */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var p = location.protocol;
+  var h = location.hostname;
+  if (p !== 'https:' && p !== 'http:') return;
+  if (p === 'http:' && h !== 'localhost' && h !== '127.0.0.1') return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+})();
+</script>
+
+<script>
+/* ===== CORE BEGIN ===== */
+
+const GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const ZHI_WX = {子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'};
+const SHENG = {木:'火',火:'土',土:'金',金:'水',水:'木'};
+const KE    = {木:'土',土:'水',水:'火',火:'金',金:'木'};
+const XIANG = {乾:'天',坤:'地',震:'雷',巽:'风',坎:'水',离:'火',艮:'山',兑:'泽'};
+
+/* 八经卦：爻起于初；in = 作下卦时的纳甲，out = 作上卦时的纳甲 */
+const TG = {
+  乾:{bits:[1,1,1], wx:'金', in:['甲子','甲寅','甲辰'], out:['壬午','壬申','壬戌']},
+  兑:{bits:[1,1,0], wx:'金', in:['丁巳','丁卯','丁丑'], out:['丁亥','丁酉','丁未']},
+  离:{bits:[1,0,1], wx:'火', in:['己卯','己丑','己亥'], out:['己酉','己未','己巳']},
+  震:{bits:[1,0,0], wx:'木', in:['庚子','庚寅','庚辰'], out:['庚午','庚申','庚戌']},
+  巽:{bits:[0,1,1], wx:'木', in:['辛丑','辛亥','辛酉'], out:['辛未','辛巳','辛卯']},
+  坎:{bits:[0,1,0], wx:'水', in:['戊寅','戊辰','戊午'], out:['戊申','戊戌','戊子']},
+  艮:{bits:[0,0,1], wx:'土', in:['丙辰','丙午','丙申'], out:['丙戌','丙子','丙寅']},
+  坤:{bits:[0,0,0], wx:'土', in:['乙未','乙巳','乙卯'], out:['癸丑','癸亥','癸酉']}
+};
+const TG_BY_BITS = {'111':'乾','110':'兑','101':'离','100':'震','011':'巽','010':'坎','001':'艮','000':'坤'};
+
+const GONGS = ['乾','坎','艮','震','巽','离','坤','兑'];
+const GONG_WX = {乾:'金',坎:'水',艮:'土',震:'木',巽:'木',离:'火',坤:'土',兑:'金'};
+
+/* 八宫生成：一世至五世依次变初、二、三、四、五爻；游魂再变回四爻；归魂下卦还原 */
+const FLIPS = [[],[0],[0,1],[0,1,2],[0,1,2,3],[0,1,2,3,4],[0,1,2,4],[4]];
+const SHI   = [6,1,2,3,4,5,4,3];
+const YING  = [3,4,5,6,1,2,1,6];
+const POS_LABEL = ['本宫','一世','二世','三世','四世','五世','游魂','归魂'];
+
+/* 六十四卦：key = 下卦|上卦，值为卦名（八纯卦留空，由 某为某 生成） */
+const NAMES = {
+  '巽|乾':'姤','艮|乾':'遁','坤|乾':'否','坤|巽':'观','坤|艮':'剥','坤|离':'晋','乾|离':'大有',
+  '兑|坎':'节','震|坎':'屯','离|坎':'既济','离|兑':'革','离|震':'丰','离|坤':'明夷','坎|坤':'师',
+  '离|艮':'贲','乾|艮':'大畜','兑|艮':'损','兑|离':'睽','兑|乾':'履','兑|巽':'中孚','艮|巽':'渐',
+  '坤|震':'豫','坎|震':'解','巽|震':'恒','巽|坤':'升','巽|坎':'井','巽|兑':'大过','震|兑':'随',
+  '乾|巽':'小畜','离|巽':'家人','震|巽':'益','震|乾':'无妄','震|离':'噬嗑','震|艮':'颐','巽|艮':'蛊',
+  '艮|离':'旅','巽|离':'鼎','坎|离':'未济','坎|艮':'蒙','坎|巽':'涣','坎|乾':'讼','离|乾':'同人',
+  '震|坤':'复','兑|坤':'临','乾|坤':'泰','乾|震':'大壮','乾|兑':'夬','乾|坎':'需','坤|坎':'比',
+  '坎|兑':'困','坤|兑':'萃','艮|兑':'咸','艮|坎':'蹇','艮|坤':'谦','艮|震':'小过','兑|震':'归妹'
+};
+
+const GUA = {};
+GONGS.forEach(function(g){
+  const base = TG[g].bits.concat(TG[g].bits);
+  FLIPS.forEach(function(fl, k){
+    const b = base.slice();
+    fl.forEach(function(i){ b[i] = b[i] ? 0 : 1; });
+    const lower = TG_BY_BITS[b.slice(0,3).join('')];
+    const upper = TG_BY_BITS[b.slice(3,6).join('')];
+    const key = lower + '|' + upper;
+    const name = (k === 0)
+      ? (g + '为' + XIANG[g])
+      : (XIANG[upper] + XIANG[lower] + NAMES[key]);
+    GUA[key] = {
+      key:key, lower:lower, upper:upper, bits:b, name:name,
+      gong:g, wx:GONG_WX[g], pos:k, posLabel:POS_LABEL[k],
+      shi:SHI[k], ying:YING[k]
+    };
+  });
+});
+
+/* 纳甲：初二三取本卦下经卦的内卦纳甲，四五六取上经卦的外卦纳甲 */
+function najiaOf(gua){
+  return TG[gua.lower].in.concat(TG[gua.upper].out);
+}
+
+/* 六亲：以卦宫五行为「我」 */
+function liuQin(me, wx){
+  if (wx === me) return '兄弟';
+  if (SHENG[me] === wx) return '子孙';
+  if (KE[me] === wx) return '妻财';
+  if (SHENG[wx] === me) return '父母';
+  if (KE[wx] === me) return '官鬼';
+  return '?';
+}
+
+/* 儒略日与日柱 */
+function jdn(y, m, d){
+  const a = Math.floor((14 - m) / 12);
+  const yy = y + 4800 - a;
+  const mm = m + 12 * a - 3;
+  return d + Math.floor((153 * mm + 2) / 5) + 365 * yy
+       + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+}
+function dayGZ(y, m, d){
+  const idx = ((jdn(y, m, d) + 49) % 60 + 60) % 60;
+  return { idx:idx, gan:idx % 10, zhi:idx % 12,
+           text:GAN[idx % 10] + ZHI[idx % 12] };
+}
+/* 旬空：本旬轮空的两个地支 */
+function xunKong(idx){
+  const startZhi = (idx - (idx % 10)) % 12;
+  return [ (startZhi + 10) % 12, (startZhi + 11) % 12 ];
+}
+/* 五鼠遁：日干定时干 */
+function hourGZ(dayGan, hourIdx){
+  const g = (dayGan * 2 + hourIdx) % 10;
+  return { gan:g, text:GAN[g] + ZHI[hourIdx] };
+}
+/* 六神：按日干起 */
+function liuShenStart(dayGan){
+  if (dayGan <= 1) return 0;  /* 甲乙 青龙 */
+  if (dayGan <= 3) return 1;  /* 丙丁 朱雀 */
+  if (dayGan === 4) return 2; /* 戊 勾陈 */
+  if (dayGan === 5) return 3; /* 己 螣蛇 */
+  if (dayGan <= 7) return 4;  /* 庚辛 白虎 */
+  return 5;                   /* 壬癸 玄武 */
+}
+const LIUSHEN = ['青龙','朱雀','勾陈','螣蛇','白虎','玄武'];
+
+/* ---------- 节气与四柱 ---------- */
+/* 节气表：1900–2052。每年 24 个节气交节时刻（北京时间），每项 8 字符 MMDDhhmm */
+const SOLAR_YEAR0 = 1900;
+const SOLAR_RAW = ["010602040120193202041352021910010306082203210939040513530420212705060755052121170606123906220540070723100723163608080851082323200908111709232020100902131024045511080440112301481207205612221442","010607530121011602041940021915450306141103211524040519440421031305061350052203050606183606221128070805080723222408081446082405070908171009240209100908061024104611081035112307411208025312222037","010613520121071202050138021921400306200803212117040601370421090405061939052208540607002006221715070810460724041008082022082410530908224609240755100913451024163611081618112313351208084112230236","010619440121131402050731022003410307015903220315040607260421145905070125052214450607060706222305070816370724095908090216082416420909044209241344100919421024222311082213112319211208143512230820","010701370121185802051324022009250306075203210859040513190420204205060719052120290606120106220451070722320723155008080812082322360908103809231940100901361024041911080405112301161207202512221414","010607270121005202041916021915210306134603211458040519140421024405061314052202310606175406221051070804200723214608081357082404290908162209240130100907201024100811080950112307051208021112222004","010613130121064302050104021921140306193603212053040601070421083905061908052208250606234906221642070810150724033308081952082410140908221609240715100913151024155511081547112312541208080912230153","010619110121123102050659022002580307012703220233040606550421141705070054052214030607053306222223070815590724091808090136082416030909040209241309100919031024215211082136112318521208135912230752","010701010121182802051247022008540306071403210827040512400420201105060638052119580606111906220419070721480723151408080727082321570908095209231858100900511024033711080322112300351207194412221333","010606450121001102041833021914380306130103211413040518290421015805061231052201450606171406221006070803440723210008081322082403440908154709240045100906431024092311080913112306201208013512221920","010612380121055902050027021920280306185703212003040600230421074605061819052207300606225606221549070809210724024308081857082409270908212209240631100912211024151111081453112312111208071712230112","010618210121115102050610022002200307003903220154040606050421133605070000052213190607043806222136070815050724082908090044082415130909031309241218100918151024205811082047112317561208130812230653","010700070121172902051154022007560306062103210729040511480420191205060547052118570606102706220317070720570723141408080637082321010908090609231808100900071024025011080239112223481207185912221245","010605580120231902041743021913440306120903211318040517360421010305061135052200500606161306220909070802390723200408081216082402480908144209232353100905441024083511080818112305351208004112221835","010611430121051202042329021919380306175603211911040523220421065305061720052206380606220006221455070808270724014708081805082408300908203209240534100911351024141711081411112311201208063712230022","010617400121105902050525022001230306234803220051040605090421122905062303052212100607034006222029070814080724072608082348082414150909021709241124100917211024201011081958112317131208122412230616","010623280121165402051114022007180306053703210647040510580420182505060450052118060606092606220224070719540723132108080535082320090908080509231715100823081024015711080142112222581207180612221159","010605090120223702041658021913050306112503211237040516500421001705061046052123590606152306220814070801500723190808081130082401540908135909232300100905021024074411080737112304451208000112221746","010611040121042502042253021918530306172103211826040522450421060505061638052205450606211106221400070807320724005108081707082407370908193509240446100910401024133311081319112310381208054712222341","010616510121102102050439022000470306230503220019040604290421115905062222052211390607025706221954070813210724064408082258082413280909012809241035100916331024192111081912112316251208113812230527","010622410121160402051026022006290306045103210559040510150420173905060411052117220606085006220140070719190723123508080458082319210908072709231628100822291024011311080105112222151207173012221117","010604340120215502041620021912200306104503211151040516090420233205061004052123170606144106220736070801070723183008081043082401150908131009232220100904111024070211080645112304041207231112221707","010610170121034802042206021918160306163403211749040521580421052905061553052205100606203006221327070806570724002008081637082407040908190609240410100910091024125311081245112309551208051112222257","010616140121093502050400022000000306222403212329040603460421110605062138052210450607021406221903070812420724060008082224082412520909005709241004100916031024185111081840112315541208110512230453","010622060121152802050950022005510306041203210520040509330420165905060326052116400606080206220059070718290723115708080412082318480908064609231558100821521024004411080029112221461207165312221045","010603530120212002041537021911430306100003211112040515220420225105060918052122330606135606220650070800250723174508081007082400330908124009232143100903471024063111080626112303351207225212221637","010609540121031202042138021917350306160003211701040521180421043605061508052204140606194206221230070806060723232508081544082406140908181609240327100909251024121811081208112309281208043912222233","010615450121091202050330021923340306215003212259040603060421103205062053052210080607012506221822070811500724051708082131082412050909000509240917100915151024180711081757112315141208102612230418","010621310121145702050916022005190306033703210444040508550420161705060243052115520606071706220006070717440723110208080327082317530908060209231505100821101023235411072349112221001207161712221004","010603220120204202041509021911070306093203211035040514510420221005060840052121480606131106220601070723320723165308080909082323410908114009232052100902471024054111080527112302481207215612221553","010609030121023302042051021917000306151703211630040520370421040605061427052203420606185806221153070805200723224208081457082405260908172809240236100908371024112611081120112308341208035112222139","010614560121081702050241021922400306210203212206040602200421094005062010052209150607004206221728070811060724042108082045082411100908231709240823100914271024171511081710112314251208094012230330","010620450121140702050829022004280306024903210354040508060420152805060155052115070606062806212323070716520723101808080232082317060908050309231416100820101023230411072250112220101207151812220914","010602230120195302041409021910160306083103210943040513500420211805060742052120570606121706220512070722440723160508080826082322520908105709232001100902041024044811080443112301531207211112221457","010608160121013702042004021916020306142603211528040519440421030005061331052202350606180106221048070804240723214208081404082404320908163609240145100907451024103611081027112307441208025712222049","010614020121072802050149021921520306201003212118040601260421085005061912052208250606234206221638070810060724033308081948082410240908222409240738100913361024162911081618112313351208084512230237","010619470121131202050729022003330306014903210258040507070420143105060056052114070606053106212222070715580723091808080143082316100908042109231326100819321023221811072215112219251207144212220827","010601440120190102041326021909210306074403210845040513010420201905060651052119570606112306220412070721460723150708080725082321580908095909231913100901111024040611080355112301161207202612221422","010607310121005902041915021915200306133403211443040518490421021505061235052201500606170706221004070803310723205708081313082403460908154809240059100907011024095411080948112307061208022212222013","010613280121065102050110021921090306192603212028040600370421075505061821052207270606225206221539070809180724023708081903082409310908214209240649100912571024154611081544112312581208081712230206","010619240121124402050708022003040306012403210224040506350420135105060016052113230606044406212136070715080723083408080051082315290908032909231246100818421023213911072127112218491207135812220755","010601040120183402041250021908560306071003210820040512250420195005060610052119230606103906220333070721030723142608080646082321170908092409231833100900381024032711080324112300381207195612221344","010607020121002302041849021914470306130903211411040518240421013905061207052201090606163306220916070802520723200708081230082402580908150609240016100906221024091511080911112306301208014712221940","010612550121061902050040021920400306185903212003040600110421073105061753052207030606221906221512070808390724020408081818082408550908205509240612100912101024150811081459112312211208073312230129","010618390121120702050623022002270306004003210149040505540420131805052340052112510606041106212102070714360723075608080019082314460908025609231202100818091023205611072055112218081207132812220715","010600340120175402041219021908150306063803210737040511520420190705060537052118400606100506220252070720270723134508080605082320350908083809231750100823491024024411080234112223551207190812221304","010606160120234502041804021914080306122503211333040517390421010205061121052200340606154906220844070802110723193708081152082402260908142709232341100905411024083511080827112305461208010012221853","010612060121053102042350021919520306180803211913040523200421063905061703052206090606213106221419070807560724011408081741082408090908202109240529100911371024142611081424112311381208065612230043","010618000121111802050542022001370305235803210057040505090420122505052252052111580606032006212011070713430723070708072326082314030908020509231122100817201023201811072007112217291207123812220633","010523410120170902041123021907270306053903210648040510520420181705060437052117510606090706220203070719320723125708080515082319480908075409231706100823111024020311080200112223161207183312221223","010605390120230002041721021913170306113503211235040516440420235905061025052123270606145106220736070801130723183008081055082401230908133409232244100904521024074511080744112305021208002212221813","010611300121045202042313021919100306172703211826040522330421054805061609052205150606203306221325070806540724002108081637082407160908191809240437100910361024133611081327112310511208060212230000","010617100121103802050453022000570305230703210014040504150420113705052154052111040606022006211913070712450723060708072231082313030908011409231024100816321023192211071922112216361207115612220543","010523020120162102041046021906410306050203210600040510130420172505060352052116530606081606220100070718350723115208080415082318450908065309231606100822101024010611080101112222221207173712221131","010604450120221102041631021912320306104903211153040515590420232005060938052122470606140106220654070800190723174508080959082400360908123809232155100903571024065611080651112304141207232812221724","010610360121040202042218021918190306163103211735040521390421045805061518052204240606194306221231070806060723232508081550082406190908183209240341100909521024124311081245112310011208052312222311","010616300121094802050412022000050305222403202320040503310420104305052110052110130606013606211824070711580723052008072140082312150908001909230935100815361023183411071826112215501207110212220459","010522100120153902040955021905580306041003210516040509190420164105060258052116100606072506220020070717480723111508080332082318080908061209231526100821301024002411080020112221391207165612221049","010604040120212802041549021911480306100503211106040515120420222705060849052121510606131206220557070723330723165008080917082323460908115909232109100903191024061111080612112303291207225012221640","010609580121031902042142021917380306155703211654040521030421041605061439052203420606190006221150070805200723224508081504082405430908174809240308100909101024121111081202112309271208043712222234","010615420121091002050323021923260305213603202243040502440420100605052023052109330606004906211742070711130723043708072100082311340907234509230859100815091023180211071802112215181207103812220426","010521430120150102040922021905160306033503210432040508420420155505060221052115220606064606212330070717070723102408080248082317190908052909231442100820511023234711072346112221081207162612221019","010603350120205802041517021911150306092903211030040514340420215105060809052121160606123106220524070722510723161808080834082323120908111509232035100902381024054011080535112303021207221712221615","010609260121025402042108021917090306151703211620040520190421033605061352052202580606181406221104070804380723215908081425082404580908171209240223100908361024112911081132112308491208041312222202","010615220121084102050305021922570305211603202210040502180420092705051951052108500606001206211657070710320723035308072016082310510907225909230817100814221023172111071715112214391207095312220350","010521020120142902040846021904480306030103210405040508070420152605060142052114500606060206212256070716210723094808080205082316430908044809231406100820111023231011072307112220291207154612220940","010602540120202002041438021910380306085103210953040513560420211105060730052120320606115006220433070722070723152308080749082322180908103209231943100901571024045111080455112302141207213812221528","010608480121020802042031021916240306144203211537040519450421025505061317052202180606173606221023070803530723211608081335082404120908161809240138100907411024104411081037112308041208031712222116","010614260121075402050207021922090305201803202122040501210420084105051856052108060605231906211613070709420723030708071927082310030907221109230726100813341023163011071629112213491207090812220300","010520170120133802040759021903540306021103210308040507150420142705060050052113500606051106212155070715320723084808080114082315430908035509231307100819171023221111072211112219311207145112220844","010602020120192402041346021909420306075803210856040513020420201505060634052119370606105206220343070721110723143708080654082321340908093809231859100901021024040411080358112301251207203712221436","010607450121011302041925021915270306133503211438040518360421015405061208052201150606162906220920070802510723201508081240082403150908153009240045100906591024095311080957112307141208023612222024","010613420121065902050120021921110305192803202021040500290420073705051801052106590605222206211506070708430723020308071829082309030907211509230633100812421023154111071539112213031207081912220213","010519250120124802040704021903010306011303210212040506140420133005052346052112540606040706212101070714270723075608080013082314530908025909231221100818271023213011072128112218541207141012220808","010601200120184602041300021908590306070703210807040512050420191905060534052118360606095206220238070720110723133008080557082320290908084509231758100900151024031111080318112300381207200512221356","010607180121003602041859021914500306130603211357040518010421010705061127052200240606154206220826070801590723192208081145082402240908143309232355100906021024090611080903112306311208014612221946","010612570121062502050039021920400305184803201950040423460420070305051714052106210605213106211424070707510723011808071738082308180907202809230548100811581023145811071459112212221207074112220135","010518510120121402040633021902300306004403210142040505460420125705052316052112140606033206212014070713480723070408072330082314000908021609231129100817441023204111072046112218071207133112220723","010600430120180402041227021908210306063803210734040511390420185005060509052118080606092306220210070719370723130008080518082319570908080209231725100823311024023711080234112300051207192012221321","010606320121000002041812021914130306122003211322040517180421003505061047052123540606150506220756070801250723184908081111082401470908140009232316100905301024082811080833112305541208011812221910","010612290121054902050009021920020305181703201910040423150420062305051644052105420605210406211347070707240723004208071709082307410907195309230509100811191023141811071418112211411207070112220056","010518130120113602040555021901520306000503210103040505050420121905052235052111390606025306211945070713120723064008072257082313380908014309231105100817101023201311072009112217361207125112220651","010600030120173102041145021907470306055503210656040510530420180705060420052117230606083606220123070718550723121508080442082319150908073209231646100823021024015811080204112223231207184812221238","010605590120231702041740021913310306114703211239040516440420235005061011052123060606142606220709070800430723180408081030082401070908132009232242100904511024075411080752112305181208003412221830","010611410121050502042319021919160305172503201824040422220420053805051551052104580605200906211302070706290722235808071618082307000907191009230433100810431023134611071346112211111207062812220023","010517350120105802040512021901070305231603210014040504140420112605052143052110430606020006211844070712190723053608072204082312360908005309231007100816251023192211071929112216511207121612220608","010523280120164602041108021906580306051203210603040510060420171205060331052116280606074406220030070718010723112408080346082318260908063509231559100822071024011411080113112222441207180112221202","010605130120224002041652021912500306105403211152040515440420225805060906052122100606131906220611070723390723170608080929082400100908122409232145100904001024070111080706112304291207235212221746","010611040121042402042243021918350305164703201739040421390420044505051502052103570605191506211157070705330722225108071520082305540907181209230329100809441023124411071249112210121207053412212328","010516460120100702040427021900200305223403202328040503300420103905052054052109540606010506211753070711190723044508072104082311460907235409230920100815271023183511071834112216051207112112220522","010522330120160202041014021906140306041903210519040509130420162705060235052115370606064606212333070717000723102208080246082317210908053709231456100821141024001411080023112221471207171412221107","010604280120214702041608021911580306101203211102040515050420220805060827052121200606123806220519070722530723161108080837082323130908112709232048100903011024060511080608112303361207225612221654","010610090121033202042148021917430305155203201648040420450420035705051409052103120605182206211114070704400722220908071427082305100907171809230243100808511023115711071157112209261207044412212243","010515570120092302040337021823350305214303202241040502370420094905052002052109020606001506211700070710320723035108072018082310500907230809230822100814401023173711071746112215071207103412220426","010521480120150702040931021905220306033803210428040508320420153605060154052114480606060506212248070716190723094108080204082316440908045509231419100820291023233611072336112221061207162312221023","010603340120210002041513021911110306091603211014040514080420212105060730052120340606114206220434070722010723153008080752082322350908104909232013100902271024053211080536112303011207222212221617","010609310121025202042108021917010305151003201603040420020420031005051326052102230605174106211024070704000722211908071349082304230907164209230200100808191023111911071127112208491207041412212206","010515240120084302040302021822510305210403202155040501560420090305051919052108180605233306211620070709490723031508071936082310190907222909230756100814051023171511071715112214481207100512220407","010521180120144602040857021904550306025703210355040507450420145705060103052114050606051306212203070715300723085508080120082315590908041609231337100819561023225911072308112220341207160212220956","010603170120203702041457021910470306085803210946040513450420204605060701052119520606110906220349070721250723144408080714082321510908101009231932100901481024045211080458112302251207214712221544","010609010121022302042040021916330305144303201535040419320420024005051250052101490605165906210948070703140722204308071303082303490907155909230128100807381023104711071048112208191207033712212137","010514490120081602040229021822270305203203202131040501240420083605051845052107440605225406211538070709070723022608071852082309270907214609230704100813251023162611071637112214001207092912220321","010520440120140202040824021904130306022803210316040507180420142005060037052113290606044506212124070714560723081508080039082315170908033109231255100819091023221811072222112219541207151412220914","010602280120195302041405021910000306080503210900040512520420200305060610052119120606102006220310070720360723140408080624082321080908092009231847100901011024040811080413112301431207210512221504","010608190121014202041956021915500305135603201449040418430420015005051202052100590605161406210857070702310722195008071220082302530907151309230030100806491023094911070959112207221207024912212042","010514030120072202040143021821320305194503202033040500340420073705051753052106470605220206211446070708170723014108071803082308450907205709230623100812331023154211071542112213151207083312220235","010519470120131502040727021903260306012903210226040506150420132605052331052112320606033706212026070713510723071808072341082314230908023909231203100818211023212611072135112219021207142712220822","010601400120190102041318021909090306071803210807040512050420190705060520052118120606092706220206070719420723130008080531082320080908082909231751100900111024031511080324112300501207201412221408","010607250121004402041900021914500305125903201348040417460420005105051103052100010605151206210759070701270722185508071116082302020907141409222344100805571023090911070911112206441207020212212004","010513140120064002040050021820460305184803201944040423340420064405051651052105510605205906211346070707130723003608071701082307390907195809230519100811401023144311071456112212231207075212220147","010519090120122802040648021902360306004603210132040505300420123005052244052111340606024906211928070713020723062108072249082313270908014509231109100817261023203511072042112218151207133812220738","010600550120181902041233021908250306063003210721040511120420181705060423052117210606082706220116070718420723121208080433082319210908073409231705100823191024023011080235112300081207192912221330","010606440121001002041822021914180305122103201314040417060420001205051020052023160605142606210709070700410722180108071031082301070907132909222249100805121023081411070826112205501207011912211912","010512340120055202040013021820020305181503201902040423020420060305051618052105100605202306211304070706350722235608071620082307020907191609230444100810581023141011071414112211481207070912220111","010518240120115102040603021901590306000203210057040504470420115605052159052110590606020306211851070712150723054108072202082312460908010109231029100816471023195711072007112217381207130412220703","010600210120174302041158021907500306055603210645040510390420174205060353052116450606075806220038070718120723113008080401082318370908070009231621100822431024014711080159112223251207185312221248","010606080120232702041746021913340305114403201230040416280419232905050942052022360605134906210634070700030722173008070953082300380907125109222221100804331023074611070748112205221207004112211844","010511560120052402032334021819310305173303201829040422170420052705051531052104310605193706211224070705510722231508071540082306200907183909230402100810221023132711071338112211051207063312220028","010517490120110902040528021901180305232803210015040504130420111305052125052110150606012906211807070711420723050008072131082312090908003009230954100816151023192211071932112217011207122612220623","010523390120170002041114021907040306051003210558040509510420165505060303052115590606070606212354070717210723105008080313082318020908061709231550100822061024012011080124112222591207181812221219","010605300120225502041703021912570305105703201150040415380419224505050851052021490605125806210544070623140722163708070906082223450907120809222131100803551023070011070714112204401207001012211802","010511230120044002032259021818440305165403201737040421350420043305051447052103370605185206211132070705050722222608071454082305350907175309230321100809391023125111071259112210341207055712212359","010517140120103902040451021900430305224403202333040503200420102405052026052109230606002606211714070710380723040708072029082311160907233209230904100815221023183611071845112216201207114612220548","010523050120163002041043021906340306043603210524040509130420161405060219052115090606061806212258070716310723095008080223082317010908052709231450100821161024002111080036112222031207173312221127","010604490120220702041627021912130305102303201106040415020419220005050810052021000605121006210451070622200722154408070809082222550907111109222044100803001023061511070620112203561206231712211721","010510330120040002032210021818070305160703201701040420490420035605051357052102550605175706211042070704050722212908071352082304340907165209230219100808411023115111071204112209361207050512212303","010516230120094402040402021823510305215803202245040502390420093905051948052108360605234806211624070709560723031308071942082310180907224109230805100814291023173711071752112215231207105212220450","010522090120152902040946021905330306033903210424040508170420151705060125052114180606052506212210070715370723090408080126082316140908042809231401100820171023233211072338112221161207163712221042","010603540120212102041531021911260305092403201017040414030419210905050712052020090605111506210402070621300722145308070721082222000907102209221945100802081023051311070527112202541206222412211619","010509410120030002032120021817070305151703201601040419580420025505051307052101550605170906210948070703220722204208071311082303510907161109230138100807581023110811071116112208491207041312212214","010515300120085402040308021822590305210303202152040501410420084305051846052107410605224406211531070708550723022408071847082309360907215209230726100813451023170011071708112214441207100712220409","010521230120144702040858021904500306025103210340040507280420143105060035052113270606043506212117070714480723081008080042082315230908035009231315100819421023224911072305112220321207160212220955","010603160120203102041448021910320305084003200921040413170419201405050625052019140605102706210308070620400722140408070632082221180907093709221910100801301023044611070454112202311206215312211555","010509080120023202032041021816330305143203201522040419080420021305051213052101100605161306210901070702240722195208071215082303010907152009230051100807131023102711071041112208161207034412212146","010515040120082702040241021822300305203203202117040501060420080305051809052106560605220606211444070708170723013608071809082308470907211409230639100813071023161611071633112214041207093612220334","010520550120141402040831021904160306022103210302040506530420134905052354052112430606035006212033070714010723072808072354082314440908030209231238100818571023221611072223112220031207152512220930","010602430120201102041419021910140305081103200902040412460419195005050549052018440605094706210232070619570722132208070548082220320907085409221823100800481023035811070414112201451206211612211512","010508340120015302032011021815580305140603201450040418440420014005051149052100350605154606210822070701550722191208071143082302220907144509230013100806371023094911071004112207381207030712212107","010514260120074802040203021821520305195503202040040500290420072805051731052106220605212506211409070707320723005908071721082308100907202609230602100812211023154011071550112213311207085612220302","010520160120134302040752021903450306014303210232040506150420131705052318052112100606031506211957070713260723064808072318082313580908022409231149100818171023212511072142112219121207144512220840","010602030120192102041339021909230305073103200811040412050419185905050509052017550605090806210146070619190722124008070510082219530907081409221744100800051023031911070329112201051206203012211432","010507480120011302031925021815170305131703201406040417520420005405051054052023480605144906210735070700580722182608071048082301360907135309222326100805471023090211070913112206491207021512212018","010513350120070002040112021821040305190503201953040423400420063905051642052105310605203806211315070706470723000608071638082307180907194509230511100811401023144911071507112212371207080912220204","010519250120124102040658021902410306004703210127040505200420121405052222052111090606021806211858070712270723055308072220082313090908013009231107100817271023204611072055112218351207135712220801","010601120120183702041244021908350305063103200720040411030419180605050405052017010605080406210051070618150722114308070408082218540907071609221647100723131023022611070242112200151206194512211343","010507020120002202031836021814220305122503201307040416570419235205050959052022460605135706210633070700080722172608070959082300390907130509222233100805001023081211070829112206031207013512211935","010512560120061502040031021820150305181703201857040422450420053905051540052104280605193206211214070705400722230808071533082306240907184309230421100810421023140311071414112211561207072112220128","010518420120121002040618021902100306000503210052040504320420113205052128052110200606012006211803070711300723045508072126082312110908003809231008100816371023194811072007112217381207131112220707","010600290120174702041204021907480305055403200633040410250419171705050324052016080605071806202354070617260722104708070318082218020907062809221600100722261023014211070156112123331206190012211302","010506180119234102031753021813420305114303201228040416140419231305050912052022030605130306210547070623080722163608070858082223470907120509222142100804051023072511070738112205191207004612211852","010512080120053302032343021819350305173203201819040422030420050205051502052103510605185406211133070705020722222108071452082305320907180009230328100810001023131211071333112211061207064112220038","010518020120111802040536021901170305232203202359040503490420104005052047052109310606004006211718070710490723041308072042082311290907235109230927100815501023191011071922112217031207122812220634","010523480120171402041123021907130305050903200556040409370419163805050235052015290605062906202316070616400722100908070233082217210907054209221515100721401023005511070110112122461206181512211217"];
+const JIE_NAME = ['小寒','立春','惊蛰','清明','立夏','芒种','小暑','立秋','白露','寒露','立冬','大雪'];
+const JIE_ZHI  = [1,2,3,4,5,6,7,8,9,10,11,0];
+const JIE_AT   = [0,2,4,6,8,10,12,14,16,18,20,22];
+
+function minutesOf(y, m, d, h, mi){ return jdn(y, m, d) * 1440 + h * 60 + mi; }
+
+function termAt(y, i){
+  const row = SOLAR_RAW[y - SOLAR_YEAR0];
+  if (!row) return null;
+  const s = row.substr(i * 8, 8);
+  return { mon:+s.substr(0,2), day:+s.substr(2,2), hour:+s.substr(4,2), min:+s.substr(6,2) };
+}
+function termMinutes(y, i){
+  const t = termAt(y, i);
+  if (!t) return null;
+  return minutesOf(y, t.mon, t.day, t.hour, t.min);
+}
+function jieList(y){
+  const out = [];
+  [y-1, y, y+1].forEach(function(yy){
+    JIE_AT.forEach(function(pos, k){
+      const mm = termMinutes(yy, pos);
+      if (mm !== null) out.push({ m:mm, zhi:JIE_ZHI[k], name:JIE_NAME[k], year:yy });
+    });
+  });
+  out.sort(function(a, b){ return a.m - b.m; });
+  return out;
+}
+/* 某个时辰（120 分钟）里有没有落进交节 */
+function jieInside(y, startMin, endMin){
+  const jl = jieList(y);
+  for (let i = 0; i < jl.length; i++){
+    if (jl[i].m >= startMin && jl[i].m < endMin) return jl[i];
+  }
+  return null;
+}
+/* 四柱：side 用于「交节正好落在本时辰内」时取交节前还是交节后 */
+function siZhu(y, m, d, hourIdx, side){
+  const startHour = ((hourIdx * 2 - 1) % 24 + 24) % 24;
+  const s = minutesOf(y, m, d, startHour, 0);
+  const e = s + 120;
+  const cross = jieInside(y, s, e);
+
+  let dt = s + 60;
+  if (cross) dt = (side === 'after') ? cross.m + 1 : cross.m - 1;
+
+  const day  = dayGZ(y, m, d);
+  const hour = hourGZ(day.gan, hourIdx);
+
+  const lichun  = termMinutes(y, 2);
+  const yearNum = (lichun !== null && dt >= lichun) ? y : y - 1;
+  const yGan = ((yearNum - 4) % 10 + 10) % 10;
+  const yZhi = ((yearNum - 4) % 12 + 12) % 12;
+
+  const jl = jieList(y);
+  let cur = null;
+  for (let i = 0; i < jl.length; i++){ if (jl[i].m <= dt) cur = jl[i]; }
+
+  let mGan = null, mZhi = null;
+  if (cur){
+    mZhi = cur.zhi;
+    const yinGan = ((yGan % 5) * 2 + 2) % 10;
+    mGan = (yinGan + ((mZhi - 2 + 12) % 12)) % 10;
+  }
+
+  return {
+    day:day, hour:hour,
+    year:{ gan:yGan, zhi:yZhi, text:GAN[yGan] + ZHI[yZhi] },
+    month:{ gan:mGan, zhi:mZhi, text: (mGan === null ? null : GAN[mGan] + ZHI[mZhi]) },
+    cross:cross
+  };
+}
+
+/* ---------- 地支关系与旺衰 ---------- */
+const CHONG = {子:'午',午:'子',丑:'未',未:'丑',寅:'申',申:'寅',卯:'酉',酉:'卯',辰:'戌',戌:'辰',巳:'亥',亥:'巳'};
+const HE    = {子:'丑',丑:'子',寅:'亥',亥:'寅',卯:'戌',戌:'卯',辰:'酉',酉:'辰',巳:'申',申:'巳',午:'未',未:'午'};
+const HE_WX = {子丑:'土',寅亥:'木',卯戌:'火',辰酉:'金',巳申:'水',午未:'土'};
+const HAI   = {子:'未',未:'子',丑:'午',午:'丑',寅:'巳',巳:'寅',卯:'辰',辰:'卯',申:'亥',亥:'申',酉:'戌',戌:'酉'};
+const PO    = {子:'酉',酉:'子',卯:'午',午:'卯',辰:'丑',丑:'辰',未:'戌',戌:'未',寅:'亥',亥:'寅',巳:'申',申:'巳'};
+/* 三刑：书中明列 寅刑巳、巳刑申、申刑寅、子刑卯、丑戌、戌未；寅申既是冲也列刑 */
+const XING_PAIR = {寅巳:1,巳寅:1,巳申:1,申巳:1,申寅:1,寅申:1,丑戌:1,戌丑:1,戌未:1,未戌:1,子卯:1,卯子:1};
+const ZI_XING = {辰:1,午:1,酉:1,亥:1};
+const SANHE = [
+  {z:['申','子','辰'], wx:'水'}, {z:['亥','卯','未'], wx:'木'},
+  {z:['寅','午','戌'], wx:'火'}, {z:['巳','酉','丑'], wx:'金'}
+];
+const SANXING = [['寅','巳','申'], ['丑','戌','未'], ['子','卯']];
+const SHENGDI = {申子:1,亥卯:1,寅午:1,巳酉:1};   /* 生地半合 */
+const MUDI    = {子辰:1,卯未:1,午戌:1,酉丑:1};   /* 墓地半合 */
+const POSN = ['初','二','三','四','五','上'];
+/* 墓库：辰水库、戌火库、丑金库、未木库；土从水土同宫，入辰 */
+const MU = {水:'辰', 土:'辰', 火:'戌', 金:'丑', 木:'未'};
+
+/* 整卦性质：六冲卦 / 六合卦（按内外爻一一对冲或相合判定） */
+function guaNature(gua){
+  const z = najiaOf(gua).map(function(s){ return s[1]; });
+  if (CHONG[z[0]] === z[3] && CHONG[z[1]] === z[4] && CHONG[z[2]] === z[5]) return '六冲卦';
+  if (HE[z[0]] === z[3] && HE[z[1]] === z[4] && HE[z[2]] === z[5]) return '六合卦';
+  return '';
+}
+
+/* 旺相休囚死：当令者旺、令生者相、生令者休、克令者囚、令克者死 */
+function wangShuai(monthWx, wx){
+  if (!monthWx || !wx) return '';
+  if (wx === monthWx) return '旺';
+  if (SHENG[monthWx] === wx) return '相';
+  if (SHENG[wx] === monthWx) return '休';
+  if (KE[wx] === monthWx) return '囚';
+  if (KE[monthWx] === wx) return '死';
+  return '';
+}
+function pairTags(a, b){
+  const t = [];
+  if (CHONG[a] === b) t.push('冲');
+  if (HE[a] === b) t.push('六合');
+  if (HAI[a] === b) t.push('害');
+  if (PO[a] === b) t.push('破');
+  if (XING_PAIR[a + b]) t.push('刑');
+  return t;
+}
+function heWx(a, b){
+  const k = [a, b].sort().join('');
+  return HE_WX[k] || '';
+}
+
+/* 反吟伏吟：依《增删卜易·反伏章》——爻反吟为变出之爻与本爻相冲，伏吟为变出之爻与本爻相同 */
+const PURE_OPPOSE = {'乾为天':'坤为地','坤为地':'乾为天','震为雷':'巽为风','巽为风':'震为雷',
+                     '坎为水':'离为火','离为火':'坎为水','艮为山':'兑为泽','兑为泽':'艮为山'};
+function fanyinFuyin(pp){
+  if (!pp.bian) return [];
+  const a = pp.najia.map(function(g){ return g[1]; });
+  const b = pp.bianNajia.map(function(g){ return g[1]; });
+  const out = [];
+  const ch = function(i){ return CHONG[a[i]] === b[i]; };
+  const sm = function(i){ return a[i] === b[i]; };
+  const inC = pp.moving[0] && pp.moving[1] && pp.moving[2] && ch(0) && ch(1) && ch(2);
+  const outC = pp.moving[3] && pp.moving[4] && pp.moving[5] && ch(3) && ch(4) && ch(5);
+  const inS = pp.moving[0] && pp.moving[1] && pp.moving[2] && sm(0) && sm(1) && sm(2);
+  const outS = pp.moving[3] && pp.moving[4] && pp.moving[5] && sm(3) && sm(4) && sm(5);
+  if (inC || outC){
+    if (inC && outC) out.push('反吟（内外皆冲）');
+    else if (inC) out.push('内卦反吟');
+    else out.push('外卦反吟');
+  }
+  if (inS || outS){
+    if (inS && outS) out.push('伏吟（内外皆同）');
+    else if (inS) out.push('内卦伏吟');
+    else out.push('外卦伏吟');
+  }
+  if (PURE_OPPOSE[pp.ben.name] === pp.bian.name) out.push('卦反吟（八纯互变）');
+  return out;
+}
+function relationLines(pp, sz){
+  const lines = [];
+  const zhi = pp.najia.map(function(g){ return g[1]; });
+  const shi = pp.ben.shi - 1, ying = pp.ben.ying - 1;
+  const mz = (sz && sz.month && sz.month.zhi !== null) ? ZHI[sz.month.zhi] : null;
+  const monthWx = mz ? ZHI_WX[mz] : null;
+  const dz = ZHI[pp.day.zhi];
+
+  /* 月建 */
+  if (mz){
+    const hit = [];
+    for (let i = 0; i < 6; i++){
+      if (CHONG[zhi[i]] === mz) hit.push(POSN[i] + '爻' + zhi[i] + '（月破）');
+      else if (HE[zhi[i]] === mz) hit.push(POSN[i] + '爻' + zhi[i] + '（合月建）');
+      else if (MU[ZHI_WX[zhi[i]]] === mz) hit.push(POSN[i] + '爻' + zhi[i] + '（入月墓）');
+    }
+    lines.push('月建 ' + mz + ZHI_WX[mz] + '：' + (hit.length ? hit.join('、') : '与各爻无涉'));
+  } else {
+    lines.push('月建：无（超出节气表范围）');
+  }
+
+  /* 日辰 */
+  {
+    const hit = [];
+    for (let i = 0; i < 6; i++){
+      if (CHONG[zhi[i]] === dz){
+        let tag = '日冲';
+        if (!pp.moving[i]){
+          const ws = wangShuai(monthWx, ZHI_WX[zhi[i]]);
+          if (ws === '旺' || ws === '相') tag = '日冲·暗动';
+          else if (ws) tag = '日冲·日破';
+        }
+        hit.push(POSN[i] + '爻' + zhi[i] + '（' + tag + '）');
+      }
+      else if (HE[zhi[i]] === dz) hit.push(POSN[i] + '爻' + zhi[i] + '（合日辰）');
+      else if (zhi[i] === dz) hit.push(POSN[i] + '爻' + zhi[i] + '（临日辰）');
+      else if (MU[ZHI_WX[zhi[i]]] === dz) hit.push(POSN[i] + '爻' + zhi[i] + '（入日墓）');
+    }
+    lines.push('日辰 ' + dz + ZHI_WX[dz] + '：' + (hit.length ? hit.join('、') : '与各爻无涉'));
+  }
+
+  /* 爻与爻 */
+  for (let i = 0; i < 6; i++){
+    for (let j = i + 1; j < 6; j++){
+      const tags = pairTags(zhi[i], zhi[j]);
+      if (!tags.length) continue;
+      const relevant = pp.moving[i] || pp.moving[j]
+                    || (i === shi && j === ying) || (i === ying && j === shi);
+      if (!relevant) continue;
+      const seg = tags.map(function(t){
+        if (t === '六合'){
+          const w = heWx(zhi[i], zhi[j]);
+          return '六合' + (w ? '（合化' + w + '）' : '');
+        }
+        return t;
+      }).join(' · ');
+      lines.push(POSN[i] + '爻' + zhi[i] + ' ↔ ' + POSN[j] + '爻' + zhi[j] + '：' + seg);
+    }
+  }
+
+  /* 三刑成组 */
+  SANXING.forEach(function(g){
+    if (g.length === 3){
+      const idx = g.map(function(c){ return zhi.indexOf(c); });
+      if (idx.every(function(k){ return k >= 0; })){
+        lines.push(g.map(function(c, n){ return POSN[idx[n]] + '爻' + c; }).join(' · ') + '：三刑（' + g.join('') + '）');
+      }
+    }
+  });
+  /* 自刑 */
+  for (let i = 0; i < 6; i++){
+    for (let j = i + 1; j < 6; j++){
+      if (zhi[i] === zhi[j] && ZI_XING[zhi[i]] && (pp.moving[i] || pp.moving[j])){
+        lines.push(POSN[i] + '爻' + zhi[i] + ' ↔ ' + POSN[j] + '爻' + zhi[j] + '：自刑');
+      }
+    }
+  }
+
+  /* 三合 / 半合：按书中成局四法判定——三爻动、两爻动一爻不动、日月补足 */
+  SANHE.forEach(function(g){
+    const idx = [];
+    g.z.forEach(function(c){ const k = zhi.indexOf(c); if (k >= 0) idx.push(k); });
+    if (idx.length < 2) return;
+    const names = idx.map(function(k){ return POSN[k] + '爻' + zhi[k]; }).join(' · ');
+
+    if (idx.length === 3){
+      const mvZ = idx.filter(function(k){ return pp.moving[k]; }).map(function(k){ return zhi[k]; });
+      const kong2 = idx.some(function(k){
+        return ZHI.indexOf(zhi[k]) === pp.kong[0] || ZHI.indexOf(zhi[k]) === pp.kong[1];
+      });
+      const broken2 = idx.some(function(k){ return mz && CHONG[zhi[k]] === mz; });
+      const buried2 = idx.some(function(k){
+        const w = ZHI_WX[zhi[k]];
+        return MU[w] === dz || (mz && MU[w] === mz);
+      });
+      let st = '';
+      if (mvZ.length === 3){
+        st = '已成（三爻俱动）';
+        if (kong2) st += '；内有旬空，待填实之日月';
+        if (broken2) st += '；内有月破，待冲开之日';
+        if (buried2) st += '；有一爻入墓，待冲开之日';
+      } else if (mvZ.length === 2){
+        const k1 = mvZ[0] + mvZ[1], k2 = mvZ[1] + mvZ[0];
+        const kind = (SHENGDI[k1] || SHENGDI[k2]) ? '生地半合'
+                   : ((MUDI[k1] || MUDI[k2]) ? '墓地半合' : '半合');
+        st = '未成，' + kind + '（两爻动：' + mvZ[0] + mvZ[1] + '；另一支静而不入局）';
+      } else if (mvZ.length === 1){
+        st = '未成（只一爻动，须待日月补凑）';
+        if (kong2) st += '；内有旬空，待填实之日月';
+      } else {
+        st = '未成（三爻皆静）';
+      }
+      lines.push(names + '：三合' + g.wx + '局' + st);
+    } else {
+      const missing = g.z.filter(function(c){ return zhi.indexOf(c) < 0; })[0];
+      const src = (missing === dz) ? '日建' : ((mz && missing === mz) ? '月建' : '');
+      const a = zhi[idx[0]], b = zhi[idx[1]];
+      const k1 = a + b, k2 = b + a;
+      const kind = (SHENGDI[k1] || SHENGDI[k2]) ? '生地半合'
+                 : ((MUDI[k1] || MUDI[k2]) ? '墓地半合' : '');
+      if (src){
+        lines.push(names + '：' + g.wx + '局' + (kind ? '（' + kind + '）' : '')
+                 + '，' + src + missing + '补足，成局');
+      } else {
+        lines.push(names + '：' + g.wx + '局' + (kind ? '（' + kind + '）' : '')
+                 + '，虚一待用（缺' + missing + '）');
+      }
+    }
+  });
+
+  /* 动爻与变爻 */
+  if (pp.bian){
+    for (let i = 0; i < 6; i++){
+      if (!pp.moving[i]) continue;
+      const a = pp.najia[i][1], b = pp.bianNajia[i][1];
+      const wa = ZHI_WX[a], wb = ZHI_WX[b];
+      const parts = [];
+      if (SHENG[wb] === wa) parts.push('变爻生本爻（回头生）');
+      else if (KE[wb] === wa) parts.push('变爻克本爻（回头克）');
+      else if (SHENG[wa] === wb) parts.push('本爻生变爻（泄）');
+      else if (KE[wa] === wb) parts.push('本爻克变爻（制）');
+      if (CHONG[a] === b) parts.push('化冲');
+      if (HE[a] === b) parts.push('化合');
+      if (MU[wa] === b) parts.push('动而化墓');
+      if (!parts.length) parts.push('同气');
+      lines.push(POSN[i] + '爻' + a + wa + ' 动化 ' + b + wb + '：' + parts.join(' · '));
+    }
+  }
+
+  /* 入动墓：卦中另一个动爻正是本爻的墓库（《增删卜易》三墓之一） */
+  for (let i = 0; i < 6; i++){
+    for (let j = 0; j < 6; j++){
+      if (i === j || !pp.moving[j]) continue;
+      if (MU[ZHI_WX[zhi[i]]] === zhi[j]){
+        lines.push(POSN[i] + '爻' + zhi[i] + ' 入 ' + POSN[j] + '爻' + zhi[j] + '（动墓）');
+      }
+    }
+  }
+
+  /* 反吟伏吟 */
+  const ff = fanyinFuyin(pp);
+  if (ff.length) lines.push('卦变：' + ff.join('；'));
+
+  return lines;
+}
+
+/* 装卦主函数。state：六个代号，初爻起 —— O 老阳 / Y 少阳 / X 老阴 / Z 少阴 */
+function paipan(state, dateStr, hourIdx){
+  const bits   = state.map(function(k){ return (k === 'O' || k === 'Y') ? 1 : 0; });
+  const moving = state.map(function(k){ return k === 'O' || k === 'X'; });
+
+  const lower = TG_BY_BITS[bits.slice(0,3).join('')];
+  const upper = TG_BY_BITS[bits.slice(3,6).join('')];
+  const ben = GUA[lower + '|' + upper];
+
+  const najia  = najiaOf(ben);
+  const me     = ben.wx;
+  const qin    = najia.map(function(gz){ return liuQin(me, ZHI_WX[gz[1]]); });
+
+  /* 变卦 */
+  const anyMove = moving.some(Boolean);
+  let bian = null, bianNajia = null, bianQinBen = null, bianQinOwn = null;
+  if (anyMove){
+    const b2 = bits.map(function(v, i){ return moving[i] ? 1 - v : v; });
+    const bl = TG_BY_BITS[b2.slice(0,3).join('')];
+    const bu = TG_BY_BITS[b2.slice(3,6).join('')];
+    bian = GUA[bl + '|' + bu];
+    bianNajia = najiaOf(bian);
+    bianQinBen = bianNajia.map(function(gz){ return liuQin(me, ZHI_WX[gz[1]]); });
+    bianQinOwn = bianNajia.map(function(gz){ return liuQin(bian.wx, ZHI_WX[gz[1]]); });
+  }
+
+  /* 伏神：本卦缺哪一亲，就到本宫八纯卦里找它伏在哪一爻 */
+  const present = {};
+  qin.forEach(function(q){ present[q] = true; });
+  const WANT = ['父母','兄弟','子孙','妻财','官鬼'];
+  const benGong = GUA[ben.gong + '|' + ben.gong];
+  const bgNajia = najiaOf(benGong);
+  const bgQin = bgNajia.map(function(gz){ return liuQin(me, ZHI_WX[gz[1]]); });
+  const fu = {};
+  WANT.forEach(function(w){
+    if (present[w]) return;
+    const i = bgQin.indexOf(w);
+    if (i >= 0) fu[i] = { qin:w, gz:bgNajia[i], wx:ZHI_WX[bgNajia[i][1]] };
+  });
+
+  /* 时间 */
+  let day = null, hour = null, kong = null;
+  if (dateStr){
+    const p = dateStr.split('-').map(Number);
+    if (p.length === 3 && p[0] && p[1] && p[2]) day = dayGZ(p[0], p[1], p[2]);
+  }
+  if (day){
+    kong = xunKong(day.idx);
+    if (hourIdx !== null && hourIdx !== undefined && hourIdx > 0){
+      hour = hourGZ(day.gan, hourIdx);
+    }
+  }
+
+  /* 六神 */
+  let shen = null;
+  if (day){
+    const s0 = liuShenStart(day.gan);
+    shen = [0,1,2,3,4,5].map(function(i){ return LIUSHEN[(s0 + i) % 6]; });
+  }
+
+  return {
+    state:state, bits:bits, moving:moving,
+    ben:ben, najia:najia, qin:qin,
+    bian:bian, bianNajia:bianNajia, bianQinBen:bianQinBen, bianQinOwn:bianQinOwn,
+    fu:fu, day:day, hour:hour, kong:kong, shen:shen, me:me
+  };
+}
+
+/* ===== CORE END ===== */
+</script>
+
+<script>
+/* ---------- 界面 ---------- */
+const POS = ['初','二','三','四','五','上'];
+const OPTS = [
+  {k:'O', label:'老阳', sym:'○'},
+  {k:'Y', label:'少阳', sym:'—'},
+  {k:'X', label:'老阴', sym:'×'},
+  {k:'Z', label:'少阴', sym:'--'}
+];
+const HOURS = [
+  {i:1, t:'丑'}, {i:2, t:'寅'}, {i:3, t:'卯'}, {i:4, t:'辰'}, {i:5, t:'巳'},
+  {i:6, t:'午'}, {i:7, t:'未'}, {i:8, t:'申'}, {i:9, t:'酉'}, {i:10, t:'戌'}, {i:11, t:'亥'}
+];
+
+let state = [null, null, null, null, null, null];
+let qinMode = 'ben'; /* ben = 按本卦宫，own = 按变卦宫 */
+let jieqiSide = 'before'; /* 交节落在本时辰内时，取交节前 / 交节后 */
+
+const rowsEl  = document.getElementById('rows');
+const dateEl  = document.getElementById('theDate');
+const hourEl  = document.getElementById('theHour');
+const hintEl  = document.getElementById('timeHint');
+const resEl   = document.getElementById('result');
+const noteEl  = document.getElementById('theNote');
+const actHintEl  = document.getElementById('actHint');
+const storeHintEl = document.getElementById('storeHint');
+let lastRender = null;
+
+function setActions(on){
+  const a = document.getElementById('actions');
+  if (a) a.style.display = on ? '' : 'none';
+  const mb = document.getElementById('mobileBar');
+  if (mb) mb.classList.toggle('show', !!on);
+  if (actHintEl) actHintEl.textContent = '';
+}
+
+/* 建录入行：上爻在最上，初爻在最下 */
+(function buildRows(){
+  let html = '';
+  for (let i = 5; i >= 0; i--){
+    html += '<div class="in-row" data-yao="' + i + '">';
+    html += '<span class="pos">' + POS[i] + '</span>';
+    html += '<span class="opts">';
+    OPTS.forEach(function(o){
+      html += '<button type="button" class="opt" data-yao="' + i + '" data-k="' + o.k + '">'
+            + o.label + '<b>' + o.sym + '</b></button>';
+    });
+    html += '</span>';
+    html += '<span class="opts-sel"><select data-sel="' + i + '">'
+          + '<option value="">请选择</option>';
+    OPTS.forEach(function(o){
+      html += '<option value="' + o.k + '">' + o.label + ' ' + o.sym + '</option>';
+    });
+    html += '</select></span>';
+    html += '<span class="pv" data-pv="' + i + '"></span>';
+    html += '</div>';
+  }
+  rowsEl.innerHTML = html;
+  rowsEl.addEventListener('change', function(e){
+    const s = e.target.closest('select[data-sel]');
+    if (!s) return;
+    const i = Number(s.dataset.sel);
+    state[i] = s.value || null;
+    paintRows();
+    render();
+  });
+  rowsEl.addEventListener('click', function(e){
+    const btn = e.target.closest('.opt');
+    if (!btn) return;
+    const i = Number(btn.dataset.yao);
+    state[i] = (state[i] === btn.dataset.k) ? null : btn.dataset.k;
+    paintRows();
+    render();
+  });
+})();
+
+/* 时辰下拉：禁子时 */
+(function buildHours(){
+  let html = '<option value="">请选时辰</option>';
+  HOURS.forEach(function(h){
+    const a = String(h.i * 2 - 1).padStart(2,'0') + ':00';
+    const b = String(h.i * 2 + 1).padStart(2,'0') + ':00';
+    html += '<option value="' + h.i + '">' + h.t + '时　' + a + '–' + b + '</option>';
+  });
+  hourEl.innerHTML = html;
+})();
+
+function barHTML(bit, moving){
+  const bar = bit
+    ? '<span class="b yang"></span>'
+    : '<span class="b yin"><i></i><i></i></span>';
+  const inner = moving ? '<span class="moving">' + bar + '</span>' : bar;
+  const mk = moving ? (bit ? '○' : '×') : '';
+  return '<span class="ycell">' + inner + '<span class="mk">' + mk + '</span></span>';
+}
+
+function paintRows(){
+  for (let i = 0; i < 6; i++){
+    const k = state[i];
+    rowsEl.querySelectorAll('.opt[data-yao="' + i + '"]').forEach(function(b){
+      b.classList.toggle('on', b.dataset.k === k);
+    });
+    const sel = rowsEl.querySelector('select[data-sel="' + i + '"]');
+    if (sel) sel.value = k || '';
+    const pv = rowsEl.querySelector('[data-pv="' + i + '"]');
+    if (k === null || k === undefined){
+      pv.innerHTML = '';
+    } else {
+      const bit = (k === 'O' || k === 'Y') ? 1 : 0;
+      const mv  = (k === 'O' || k === 'X');
+      pv.innerHTML = barHTML(bit, mv);
+    }
+  }
+}
+
+function nacell(gz, isKong){
+  return '<span class="nacell"><span class="na-v">' + gz + ZHI_WX[gz[1]] + '</span>'
+       + '<span class="kong' + (isKong ? '' : ' off') + '">空</span></span>';
+}
+
+function render(){
+  const filled = state.filter(function(k){ return k; }).length;
+  if (filled < 6){
+    resEl.innerHTML = '<div class="placeholder">还差 ' + (6 - filled) + ' 爻　·　点齐六爻自动出盘</div>';
+    lastRender = null; setActions(false);
+    return;
+  }
+  if (!dateEl.value || !hourEl.value){
+    resEl.innerHTML = '<div class="placeholder">'
+      + (!dateEl.value ? '请填写起卦日期' : '请选择时辰')
+      + '</div>';
+    lastRender = null; setActions(false);
+    return;
+  }
+
+  const hy = Number(hourEl.value);
+  const pp = paipan(state, dateEl.value, hy);
+  const kongSet = {};
+  pp.kong.forEach(function(z){ kongSet[z] = true; });
+
+  const hs = HOURS.filter(function(h){ return h.i === hy; })[0];
+  const hRange = String(hy * 2 - 1).padStart(2,'0') + ':00–' + String(hy * 2 + 1).padStart(2,'0') + ':00';
+  const dpart = dateEl.value.split('-');
+
+  /* 盘头 */
+  let head = '<div class="head"><div class="names">'
+    + '<span>' + pp.ben.name + '<small>' + pp.ben.gong + '宫 · ' + pp.ben.posLabel
+    + ' · ' + pp.ben.wx + (guaNature(pp.ben) ? ' · ' + guaNature(pp.ben) : '') + '</small></span>';
+  if (pp.bian){
+    head += '<span class="arrow">→</span>'
+         + '<span>' + pp.bian.name + '<small>' + pp.bian.gong + '宫 · ' + pp.bian.posLabel
+         + ' · ' + pp.bian.wx + (guaNature(pp.bian) ? ' · ' + guaNature(pp.bian) : '') + '</small></span>';
+  }
+  head += '</div>';
+
+  if (pp.bian){
+    head += '<div class="toggle">变卦六亲口径<div class="seg-group">'
+      + '<button type="button" class="seg' + (qinMode === 'ben' ? ' on' : '') + '" data-mode="ben">按本卦宫 · '
+      + pp.ben.gong + pp.ben.wx + '</button>'
+      + '<button type="button" class="seg' + (qinMode === 'own' ? ' on' : '') + '" data-mode="own">按变卦宫 · '
+      + pp.bian.gong + pp.bian.wx + '</button>'
+      + '</div>'
+      + '<span class="print-only">　'
+      + (qinMode === 'own' ? '按变卦宫 · ' + pp.bian.gong + pp.bian.wx
+                           : '按本卦宫 · ' + pp.ben.gong + pp.ben.wx) + '</span>'
+      + '</div>';
+  }
+
+  head += '</div>';
+
+  /* 时间行 */
+  const Y = Number(dpart[0]), Mo = Number(dpart[1]), D = Number(dpart[2]);
+  const sz = siZhu(Y, Mo, D, hy, jieqiSide);
+  const monthWx = (sz.month.zhi !== null) ? ZHI_WX[ZHI[sz.month.zhi]] : null;
+  const kongText = pp.kong.map(function(z){ return ZHI[z]; }).join('');
+  const noteTxt = (noteEl && noteEl.value ? noteEl.value.trim() : '');
+  const siZhuText = sz.year.text + '年　'
+    + (sz.month.text ? sz.month.text + '月　' : '')
+    + sz.day.text + '日　' + sz.hour.text + '时';
+  head += '<div class="stamp">'
+    + '<span class="kv"><em>起卦</em>公历 ' + Y + '年' + Mo + '月' + D + '日 · '
+    + hs.t + '时（' + hRange + '）</span>'
+    + '<span class="kv"><em>四柱</em>' + siZhuText + '</span>'
+    + '<span class="kv"><em>旬空</em>' + kongText + '</span>'
+    + (noteTxt ? '<span class="kv"><em>所问</em>' + esc(noteTxt) + '</span>' : '')
+    + '</div>';
+
+  if (!sz.month.text){
+    head += '<div class="cross">节气表只到 1900–2052，这个日期推不出月柱（月建）。'
+          + '日柱、时柱和装卦不受影响。</div>';
+  }
+  if (sz.cross){
+    const t = sz.cross;
+    const chh = String(Math.floor((t.m % 1440) / 60)).padStart(2, '0');
+    const cmm = String(t.m % 60).padStart(2, '0');
+    head += '<div class="cross">本时辰内有交节：<b>' + t.name + ' ' + chh + ':' + cmm + '</b>。'
+          + '交节前后月柱不同，'
+          + '<span class="screen-only">请确认摇卦在交节哪一边：</span>'
+          + '<span class="print-only">已按交节' + (jieqiSide === 'after' ? '后' : '前') + '计。</span>'
+          + '<span class="seg-group">'
+          + '<button type="button" class="seg' + (jieqiSide === 'before' ? ' on' : '') + '" data-side="before">交节前</button>'
+          + '<button type="button" class="seg' + (jieqiSide === 'after' ? ' on' : '') + '" data-side="after">交节后</button>'
+          + '</span></div>';
+  }
+
+  /* 表 */
+  const useOwn = (qinMode === 'own' && pp.bian);
+  const hasBian = !!pp.bian;
+  let rows = '';
+  for (let i = 5; i >= 0; i--){
+    const gz  = pp.najia[i];
+    const gzB = pp.bian ? pp.bianNajia[i] : null;
+    const isKong = !!kongSet[ZHI.indexOf(gz[1])];
+
+    const fuCell = pp.fu[i]
+      ? '<span class="fucell"><span>' + pp.fu[i].qin + pp.fu[i].gz + pp.fu[i].wx + '</span></span>'
+      : '<span class="fucell"><span class="empty">—</span></span>';
+
+    const sy = (i + 1 === pp.ben.shi)
+      ? '<td class="sy"><span class="sycell"><span class="shi">世</span></span></td>'
+      : (i + 1 === pp.ben.ying)
+        ? '<td class="sy"><span class="sycell"><span class="shi">应</span></span></td>'
+        : '<td class="sy"><span class="sycell"></span></td>';
+
+    let bianCells = '';
+    if (hasBian){
+      const bBits = pp.bian.bits[i];
+      if (pp.moving[i]){
+        bianCells = '<td class="qin">' + (useOwn ? pp.bianQinOwn[i] : pp.bianQinBen[i]) + '</td>'
+                  + '<td>' + nacell(gzB, !!kongSet[ZHI.indexOf(gzB[1])]) + '</td>'
+                  + '<td class="wang">' + (wangShuai(monthWx, ZHI_WX[gzB[1]]) || '·') + '</td>'
+                  + '<td>' + barHTML(bBits, false) + '</td>';
+      } else {
+        bianCells = '<td class="qin empty">·</td><td class="empty">·</td>'
+                  + '<td class="wang empty">·</td>'
+                  + '<td>' + barHTML(bBits, false) + '</td>';
+      }
+    }
+
+    rows += '<tr>'
+      + '<td class="p">' + POS[i] + '</td>'
+      + '<td class="god">' + pp.shen[i] + '</td>'
+      + '<td>' + fuCell + '</td>'
+      + '<td class="qin">' + pp.qin[i] + '</td>'
+      + '<td>' + nacell(gz, isKong) + '</td>'
+      + '<td class="wang">' + (wangShuai(monthWx, ZHI_WX[gz[1]]) || '·') + '</td>'
+      + '<td>' + barHTML(pp.bits[i], pp.moving[i]) + '</td>'
+      + sy
+      + bianCells
+      + '</tr>';
+  }
+
+  let cols = '<col style="width:42px"><col style="width:74px"><col style="width:108px">'
+           + '<col style="width:76px"><col style="width:120px"><col style="width:58px">'
+           + '<col style="width:96px"><col style="width:58px">';
+  let thead;
+  if (hasBian){
+    cols += '<col style="width:76px"><col style="width:120px"><col style="width:58px"><col style="width:96px">';
+    thead = '<thead><tr>'
+      + '<th rowspan="2">位</th><th rowspan="2">六神</th><th rowspan="2">伏神</th>'
+      + '<th colspan="4">本　　卦</th><th rowspan="2">世应</th><th colspan="4">变　　卦</th>'
+      + '</tr><tr>'
+      + '<th>六亲</th><th>纳甲</th><th>旺衰</th><th>爻象</th><th>六亲</th><th>纳甲</th><th>旺衰</th><th>爻象</th>'
+      + '</tr></thead>';
+  } else {
+    thead = '<thead><tr>'
+      + '<th rowspan="2">位</th><th rowspan="2">六神</th><th rowspan="2">伏神</th>'
+      + '<th colspan="4">本　　卦</th><th rowspan="2">世应</th>'
+      + '</tr><tr>'
+      + '<th>六亲</th><th>纳甲</th><th>旺衰</th><th>爻象</th>'
+      + '</tr></thead>';
+  }
+  const table = '<table class="pan"><colgroup>' + cols + '</colgroup>' + thead
+    + '<tbody>' + rows + '</tbody></table>';
+
+  const legend = '<div class="legend">'
+    + '<b>○</b> 老阳动　<b>×</b> 老阴动　<em>空</em> 旬空　<em>世 / 应</em> 世应位'
+    + (hasBian
+        ? '　·　变卦六亲、纳甲只标动爻，爻象整卦画全'
+          + '<br>变卦六亲默认按本卦宫（' + pp.ben.gong + '宫' + pp.ben.wx
+          + '）推；切到「按变卦宫」可对照。'
+        : '　·　六爻皆静，无变卦。')
+    + '<br>年柱以立春换年，月柱以十二节分界；<em>月建</em>即月柱之支。节气按北京时间。'
+    + '<br>节气数据：1900—2025 取自中国科学院紫金山天文台《1900—2025年日历》；'
+    + '2026—2052 取用中国历法公共数据集（CC BY 4.0）。'
+    + '</div>';
+
+  const relLines = relationLines(pp, sz);
+  const rels = '<div class="rels"><div class="rels-h">爻 位 关 系</div>'
+    + relLines.map(function(t){ return '<div class="rels-line">' + esc(t) + '</div>'; }).join('')
+    + '</div>';
+
+  resEl.innerHTML = head + '<div class="tablewrap">' + table + '</div>' + rels + legend;
+
+  lastRender = { pp:pp, sz:sz, Y:Y, Mo:Mo, D:D, hy:hy, qinMode:qinMode,
+                 jieqiSide:jieqiSide, note:noteEl.value.trim() };
+  setActions(true);
+
+  resEl.querySelectorAll('.seg').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (b.dataset.mode){ qinMode = b.dataset.mode; render(); }
+      else if (b.dataset.side){ jieqiSide = b.dataset.side; render(); }
+    });
+  });
+}
+
+/* 时间：默认抓本机，撞子时留空 */
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+function fillNow(notify){
+  const now = new Date();
+  jieqiSide = 'before';
+  dateEl.value = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+  const hIdx = Math.floor(((now.getHours() + 1) % 24) / 2);
+  if (hIdx === 0){
+    hourEl.value = '';
+    hintEl.className = 'hint warn';
+    hintEl.textContent = '当前是本机子时（23:00–01:00）。本工具子时不占，请手动选择时辰。';
+  } else {
+    hourEl.value = String(hIdx);
+    hintEl.className = 'hint';
+    hintEl.textContent = notify
+      ? ('已按本机时间填入 ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes())
+         + '，对应的时辰是' + ZHI[hIdx] + '时。手动改动以你改的为准。')
+      : '';
+  }
+  render();
+}
+
+dateEl.addEventListener('change', function(){ jieqiSide = 'before'; render(); });
+hourEl.addEventListener('change', function(){
+  jieqiSide = 'before';
+  if (hourEl.value){
+    hintEl.className = 'hint';
+    hintEl.textContent = '按你选的时辰算。';
+  }
+  render();
+});
+document.getElementById('btnNow').addEventListener('click', function(){ fillNow(true); });
+
+/* ---------- 卦例存档 ---------- */
+const STORE_KEY = 'liuyao_cases_v1';
+let cases = loadCases();
+
+function loadCases(){
+  try {
+    if (typeof localStorage === 'undefined' || !localStorage) return [];
+    const raw = localStorage.getItem(STORE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e){ return []; }
+}
+function persist(){
+  try {
+    if (typeof localStorage === 'undefined' || !localStorage) return false;
+    localStorage.setItem(STORE_KEY, JSON.stringify(cases));
+    return true;
+  } catch (e){ return false; }
+}
+function esc(s){
+  return String(s).replace(/[&<>"]/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];
+  });
+}
+function stampName(){
+  const t = new Date();
+  return t.getFullYear() + pad2(t.getMonth()+1) + pad2(t.getDate()) + '_'
+       + pad2(t.getHours()) + pad2(t.getMinutes());
+}
+function downloadBlob(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
+}
+
+function renderCases(){
+  const box = document.getElementById('caseList');
+  if (!box) return;
+  if (!cases.length){
+    box.innerHTML = '<div class="case-empty">还没有存档。排好一盘后点「存入卦例」。</div>';
+    return;
+  }
+  const list = cases.slice().sort(function(a,b){ return b.ts - a.ts; });
+  box.innerHTML = list.map(function(c){
+    const t = new Date(c.ts);
+    const when = t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate())
+               + '　' + pad2(t.getHours()) + ':' + pad2(t.getMinutes());
+    const gua = esc(c.ben) + (c.bian ? ' → ' + esc(c.bian) : '<small>（静卦）</small>');
+    return '<div class="case-item">'
+      + '<span class="case-when">' + when + '　' + ZHI[c.hour] + '时</span>'
+      + '<span class="case-gua">' + gua + '</span>'
+      + '<span class="case-note">' + (c.note ? esc(c.note) : '') + '</span>'
+      + '<span class="case-act">'
+      + '<button type="button" class="mini" data-act="open" data-id="' + esc(c.id) + '">回看</button>'
+      + '<button type="button" class="mini danger" data-act="del" data-id="' + esc(c.id) + '">删除</button>'
+      + '</span></div>';
+  }).join('');
+}
+
+function saveCase(){
+  if (!lastRender) return;
+  const pp = lastRender.pp;
+  const hy = Number(hourEl.value);
+  cases.push({
+    id: 'c' + Date.now() + Math.random().toString(36).slice(2, 7),
+    ts: Date.now(),
+    date: dateEl.value,
+    hour: hy,
+    state: state.slice(),
+    qinMode: qinMode,
+    jieqiSide: jieqiSide,
+    note: noteEl.value.trim(),
+    ben: pp.ben.name,
+    bian: pp.bian ? pp.bian.name : '',
+    sizhu: lastRender.sz.year.text + '年 '
+         + (lastRender.sz.month.text || '—') + '月 '
+         + lastRender.sz.day.text + '日 ' + lastRender.sz.hour.text + '时'
+  });
+  const ok = persist();
+  renderCases();
+  actHintEl.textContent = ok
+    ? '已存入，共 ' + cases.length + ' 条。'
+    : '浏览器不允许本地存储，请用下方的「导出全部备份」存成文件。';
+}
+
+function openCase(id){
+  const c = cases.filter(function(x){ return x.id === id; })[0];
+  if (!c) return;
+  state = c.state.slice();
+  dateEl.value = c.date;
+  hourEl.value = String(c.hour);
+  noteEl.value = c.note || '';
+  qinMode = c.qinMode || 'ben';
+  jieqiSide = c.jieqiSide || 'before';
+  paintRows();
+  render();
+  const r = document.getElementById('result');
+  if (r && r.scrollIntoView) r.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function exportBackup(){
+  if (!cases.length){ storeHintEl.textContent = '还没有存档可导出。'; return; }
+  const blob = new Blob([JSON.stringify({ v:1, app:'六爻装卦', cases:cases }, null, 2)],
+                        { type:'application/json' });
+  downloadBlob(blob, '六爻卦例备份_' + stampName() + '.json');
+  storeHintEl.textContent = '已导出 ' + cases.length + ' 条。';
+}
+
+/* ---------- 导出图片 ---------- */
+function T(ctx, s, x, y, size, color, align, bold){
+  ctx.font = (bold ? '600 ' : '') + size + 'px "Songti SC", SimSun, serif';
+  ctx.fillStyle = color;
+  ctx.textAlign = align || 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(s, x, y);
+  return ctx.measureText(s).width;
+}
+function drawBar(ctx, cx, cy, bit, moving){
+  const w = 52, h = 8;
+  ctx.fillStyle = moving ? '#a3352a' : '#2b2622';
+  if (bit) ctx.fillRect(cx - w/2, cy - h/2, w, h);
+  else {
+    ctx.fillRect(cx - w/2, cy - h/2, 20, h);
+    ctx.fillRect(cx - w/2 + 32, cy - h/2, 20, h);
+  }
+}
+function buildChartCanvas(){
+  if (!lastRender) return null;
+  const d = lastRender, pp = d.pp;
+  const hasBian = !!pp.bian;
+  const pad = 34;
+  const cols = hasBian ? [34,70,106,74,116,58,92,52,74,116,58,92] : [34,70,106,74,116,58,92,52];
+  const cw = cols.reduce(function(a,b){ return a + b; }, 0);
+  const W = cw + pad * 2;
+  const rowH = 46, headH = 64, titleH = 100, footerH = 66;
+  const tableTop = pad + titleH;
+  const relLines = relationLines(pp, d.sz);
+  const relH = relLines.length ? (38 + relLines.length * 20) : 0;
+  const H = tableTop + headH + rowH * 6 + relH + footerH;
+  const monthWx = (d.sz.month.zhi !== null) ? ZHI_WX[ZHI[d.sz.month.zhi]] : null;
+
+  const cv = document.createElement('canvas');
+  const k = 2;
+  cv.width = W * k; cv.height = H * k;
+  const ctx = cv.getContext('2d');
+  ctx.scale(k, k);
+
+  ctx.fillStyle = '#fffdf8';
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = '#ddd3c2';
+  ctx.lineWidth = 1;
+
+  /* 标题 */
+  let x = pad, y = pad + 20;
+  let w = T(ctx, pp.ben.name, x, y, 23, '#2b2622', 'left', true);
+  x += w + 6;
+  x += T(ctx, '（' + pp.ben.gong + '宫 · ' + pp.ben.posLabel + ' · ' + pp.ben.wx
+        + (guaNature(pp.ben) ? ' · ' + guaNature(pp.ben) : '') + '）', x, y + 2, 12, '#6b6257') + 14;
+  if (pp.bian){
+    x += T(ctx, '→', x, y, 15, '#9a9084') + 14;
+    w = T(ctx, pp.bian.name, x, y, 23, '#2b2622', 'left', true);
+    x += w + 6;
+    T(ctx, '（' + pp.bian.gong + '宫 · ' + pp.bian.posLabel + ' · ' + pp.bian.wx
+      + (guaNature(pp.bian) ? ' · ' + guaNature(pp.bian) : '') + '）', x, y + 2, 12, '#6b6257');
+  }
+
+  /* 起卦时间 */
+  const hRange = String(d.hy * 2 - 1).padStart(2, '0') + ':00–' + String(d.hy * 2 + 1).padStart(2, '0') + ':00';
+  let sx = pad;
+  sx += T(ctx, '起卦　', sx, pad + 50, 12, '#8a6d3b') + 4;
+  T(ctx, '公历 ' + d.Y + '年' + d.Mo + '月' + d.D + '日 · ' + ZHI[d.hy] + '时（' + hRange + '）',
+    sx, pad + 50, 15, '#2b2622');
+
+  /* 四柱与旬空 */
+  const sz = d.sz;
+  const kt = pp.kong.map(function(z){ return ZHI[z]; }).join('');
+  sx = pad;
+  sx += T(ctx, '四柱　', sx, pad + 74, 12, '#8a6d3b') + 4;
+  sx += T(ctx, sz.year.text + '年　' + (sz.month.text || '—') + '月　'
+        + sz.day.text + '日　' + sz.hour.text + '时', sx, pad + 74, 15, '#2b2622') + 26;
+  sx += T(ctx, '旬空　', sx, pad + 74, 12, '#8a6d3b') + 4;
+  T(ctx, kt, sx, pad + 74, 15, '#2b2622');
+
+  /* 表头 */
+  const cx = [];
+  const bx = [pad];
+  let acc = pad;
+  cols.forEach(function(c){ cx.push(acc + c / 2); acc += c; bx.push(acc); });
+  const xL = pad, xR = pad + cw;
+  const h1 = tableTop, h2 = tableTop + 32, t0 = tableTop + headH;
+  const line = function(yy){ ctx.beginPath(); ctx.moveTo(xL, yy + .5); ctx.lineTo(xR, yy + .5); ctx.stroke(); };
+
+  T(ctx, '位', cx[0], h1 + 16, 12, '#8a6d3b', 'center');
+  T(ctx, '六神', cx[1], h1 + 16, 12, '#8a6d3b', 'center');
+  T(ctx, '伏神', cx[2], h1 + 16, 12, '#8a6d3b', 'center');
+  T(ctx, '本　　卦', (bx[3] + bx[7]) / 2, h1 + 16, 12, '#8a6d3b', 'center');
+  T(ctx, '世应', cx[7], h1 + 16, 12, '#8a6d3b', 'center');
+  if (hasBian) T(ctx, '变　　卦', (bx[8] + bx[12]) / 2, h1 + 16, 12, '#8a6d3b', 'center');
+
+  T(ctx, '六亲', cx[3], h2 + 14, 12, '#8a6d3b', 'center');
+  T(ctx, '纳甲', cx[4], h2 + 14, 12, '#8a6d3b', 'center');
+  T(ctx, '旺衰', cx[5], h2 + 14, 12, '#8a6d3b', 'center');
+  T(ctx, '爻象', cx[6], h2 + 14, 12, '#8a6d3b', 'center');
+  if (hasBian){
+    T(ctx, '六亲', cx[8], h2 + 14, 12, '#8a6d3b', 'center');
+    T(ctx, '纳甲', cx[9], h2 + 14, 12, '#8a6d3b', 'center');
+    T(ctx, '旺衰', cx[10], h2 + 14, 12, '#8a6d3b', 'center');
+    T(ctx, '爻象', cx[11], h2 + 14, 12, '#8a6d3b', 'center');
+  }
+  line(tableTop + 31);
+  line(t0);
+
+  /* 竖线 */
+  ctx.beginPath();
+  let vx = xL;
+  for (let i = 0; i < cols.length; i++){
+    if (i === 0) { ctx.moveTo(vx + .5, tableTop); ctx.lineTo(vx + .5, t0 + rowH * 6); }
+    vx += cols[i];
+    ctx.moveTo(vx - .5, tableTop); ctx.lineTo(vx - .5, t0 + rowH * 6);
+  }
+  ctx.stroke();
+
+  /* 六爻 */
+  const kongSet = {};
+  pp.kong.forEach(function(z){ kongSet[z] = true; });
+  for (let r = 0; r < 6; r++){
+    const i = 5 - r;
+    const cy = t0 + rowH * r + rowH / 2;
+    const gz = pp.najia[i];
+    const kong = !!kongSet[ZHI.indexOf(gz[1])];
+
+    T(ctx, POS[i], cx[0], cy, 14, '#8a6d3b', 'center');
+    T(ctx, pp.shen[i], cx[1], cy, 14, '#2b2622', 'center');
+    if (pp.fu[i]) T(ctx, pp.fu[i].qin + pp.fu[i].gz + pp.fu[i].wx, cx[2], cy, 12.5, '#8a6d3b', 'center');
+    else T(ctx, '—', cx[2], cy, 13, '#d8d0c2', 'center');
+    T(ctx, pp.qin[i], cx[3], cy, 15, '#2b2622', 'center');
+
+    const naText = gz + ZHI_WX[gz[1]];
+    if (kong){
+      T(ctx, naText, cx[4] - 12, cy, 15, '#2b2622', 'center');
+      ctx.strokeStyle = '#ddd3c2';
+      ctx.strokeRect(cx[4] + 16.5, cy - 8.5, 22, 17);
+      T(ctx, '空', cx[4] + 27.5, cy, 10, '#9a9084', 'center');
+    } else {
+      T(ctx, naText, cx[4], cy, 15, '#2b2622', 'center');
+    }
+
+    drawBar(ctx, cx[6], cy, pp.bits[i], pp.moving[i]);
+    if (pp.moving[i]) T(ctx, pp.bits[i] ? '○' : '×', cx[6] + 37, cy, 13, '#a3352a', 'center', true);
+
+    T(ctx, wangShuai(monthWx, ZHI_WX[gz[1]]) || '·', cx[5], cy, 14, '#8a6d3b', 'center');
+
+    if (i + 1 === pp.ben.shi || i + 1 === pp.ben.ying){
+      const s = (i + 1 === pp.ben.shi) ? '世' : '应';
+      ctx.strokeStyle = '#c8b48a';
+      ctx.strokeRect(cx[7] - 9.5, cy - 9.5, 19, 19);
+      T(ctx, s, cx[7], cy, 11, '#8a6d3b', 'center');
+    }
+
+    if (hasBian){
+      const gzB = pp.bianNajia[i];
+      if (pp.moving[i]){
+        T(ctx, (qinMode === 'own' ? pp.bianQinOwn[i] : pp.bianQinBen[i]), cx[8], cy, 15, '#2b2622', 'center');
+        T(ctx, gzB + ZHI_WX[gzB[1]], cx[9], cy, 15, '#2b2622', 'center');
+        T(ctx, wangShuai(monthWx, ZHI_WX[gzB[1]]) || '·', cx[10], cy, 14, '#8a6d3b', 'center');
+      } else {
+        T(ctx, '·', cx[8], cy, 13, '#d8d0c2', 'center');
+        T(ctx, '·', cx[9], cy, 13, '#d8d0c2', 'center');
+        T(ctx, '·', cx[10], cy, 13, '#d8d0c2', 'center');
+      }
+      drawBar(ctx, cx[11], cy, pp.bian.bits[i], false);
+    }
+  }
+  /* 行线 */
+  ctx.strokeStyle = '#eee6d8';
+  for (let r = 1; r < 6; r++) line(t0 + rowH * r);
+
+  /* 爻位关系 */
+  if (relLines.length){
+    const ry = t0 + rowH * 6 + 14;
+    ctx.fillStyle = '#fbf8f1';
+    ctx.fillRect(xL, ry, cw, relH - 8);
+    ctx.strokeStyle = '#eee6d8';
+    ctx.strokeRect(xL + .5, ry + .5, cw - 1, relH - 9);
+    T(ctx, '爻 位 关 系', xL + 12, ry + 17, 11, '#8a6d3b');
+    relLines.forEach(function(t, n){
+      T(ctx, t, xL + 12, ry + 38 + n * 20, 11.5, '#6b6257');
+    });
+  }
+
+  /* 页脚 */
+  const fy = t0 + rowH * 6 + relH + 26;
+  let fx = pad;
+  const noteText = (noteEl && noteEl.value ? noteEl.value : '').trim();
+  if (noteText){
+    fx += T(ctx, '所问　', fx, fy, 12, '#8a6d3b') + 4;
+    T(ctx, noteText, fx, fy, 14, '#2b2622');
+  }
+  T(ctx, '六爻装卦 · 生成于 ' + (function(){
+      const t = new Date();
+      return t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate())
+           + ' ' + pad2(t.getHours()) + ':' + pad2(t.getMinutes());
+    })(), xR, fy + 22, 11, '#9a9084', 'right');
+
+  return cv;
+}
+
+function pngName(pp){
+  return '六爻_' + pp.ben.name + (pp.bian ? '_' + pp.bian.name : '') + '_' + stampName() + '.png';
+}
+
+function exportPng(){
+  const cv = buildChartCanvas();
+  if (!cv) return;
+  cv.toBlob(function(blob){
+    if (!blob) { actHintEl.textContent = '导出失败：浏览器没给出图片数据。'; return; }
+    downloadBlob(blob, pngName(lastRender.pp));
+    actHintEl.textContent = '图片已导出。';
+  }, 'image/png');
+}
+
+/* 手机端：直接显示成品图，长按保存进相册 */
+function previewPng(){
+  const cv = buildChartCanvas();
+  if (!cv) return;
+  cv.toBlob(function(blob){
+    if (!blob) return;
+    const img = document.getElementById('imgPreview');
+    const box = document.getElementById('imgbox');
+    if (!img || !box) return;
+    if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+    const url = URL.createObjectURL(blob);
+    img.dataset.url = url;
+    img.src = url;
+    box.classList.add('on');
+  }, 'image/png');
+}
+
+/* ---------- 绑定 ---------- */
+document.getElementById('btnSave').addEventListener('click', saveCase);
+document.getElementById('btnPng').addEventListener('click', exportPng);
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.getElementById('btnMobilePng').addEventListener('click', previewPng);
+document.getElementById('imgClose').addEventListener('click', function(){
+  const box = document.getElementById('imgbox');
+  if (box) box.classList.remove('on');
+});
+noteEl.addEventListener('input', function(){ if (lastRender) render(); });
+document.getElementById('btnBackup').addEventListener('click', exportBackup);
+document.getElementById('btnRestore').addEventListener('click', function(){
+  document.getElementById('fileRestore').click();
+});
+document.getElementById('fileRestore').addEventListener('change', function(){
+  const f = this.files && this.files[0];
+  if (!f) return;
+  const fr = new FileReader();
+  fr.onload = function(){
+    try {
+      const data = JSON.parse(String(fr.result));
+      const arr = Array.isArray(data) ? data : (data && Array.isArray(data.cases) ? data.cases : null);
+      if (!arr) throw new Error('bad');
+      const ids = {};
+      cases.forEach(function(c){ ids[c.id] = 1; });
+      let added = 0;
+      arr.forEach(function(c){
+        if (c && c.id && c.state && !ids[c.id]){ cases.push(c); ids[c.id] = 1; added++; }
+      });
+      persist();
+      renderCases();
+      storeHintEl.textContent = '导入完成，新增 ' + added + ' 条。';
+    } catch (e){
+      storeHintEl.textContent = '导入失败：这个文件不是本工具的备份格式。';
+    }
+  };
+  fr.readAsText(f);
+  this.value = '';
+});
+document.getElementById('caseList').addEventListener('click', function(e){
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  const id = b.dataset.id;
+  if (b.dataset.act === 'open') openCase(id);
+  else if (b.dataset.act === 'del'){
+    const c = cases.filter(function(x){ return x.id === id; })[0];
+    if (!c) return;
+    if (!confirm('删除「' + c.ben + '」这条卦例？')) return;
+    cases = cases.filter(function(x){ return x.id !== id; });
+    persist();
+    renderCases();
+  }
+});
+
+/* 启动 */
+fillNow(false);
+paintRows();
+render();
+renderCases();
+</script>
+</body>
+</html>
