@@ -2120,6 +2120,7 @@ function buildChartCanvas(){
   const xL = pad, xR = pad + cw;
   const h1 = tableTop, h2 = tableTop + 32, t0 = tableTop + headH;
   const line = function(yy){ ctx.beginPath(); ctx.moveTo(xL, yy + .5); ctx.lineTo(xR, yy + .5); ctx.stroke(); };
+  const seg = function(x1, x2, yy){ ctx.beginPath(); ctx.moveTo(x1, yy + .5); ctx.lineTo(x2, yy + .5); ctx.stroke(); };
 
   T(ctx, '位', cx[0], h1 + 32, 12, '#8a6d3b', 'center', false, cols[0] - 6);
   T(ctx, '六神', cx[1], h1 + 32, 12, '#8a6d3b', 'center', false, cols[1] - 6);
@@ -2138,18 +2139,27 @@ function buildChartCanvas(){
     T(ctx, '旺衰', cx[10], h2 + 16, 12, '#8a6d3b', 'center', false, cols[10] - 6);
     T(ctx, '爻象', cx[11], h2 + 16, 12, '#8a6d3b', 'center', false, cols[11] - 6);
   }
-  line(tableTop + 31);
+  /* 跨行表头（位/六神/伏神/世应）下面不画横线，避免线穿过文字 */
+  seg(bx[3], bx[7], tableTop + 31);
+  if (hasBian) seg(bx[8], bx[12], tableTop + 31);
   line(t0);
 
-  /* 竖线 */
-  ctx.beginPath();
+  /* 竖线：本卦/变卦分组内部的分隔线从第二行表头才开始，避免切过 colspan 表头文字 */
+  const vline = function(x, y1, y2){
+    ctx.beginPath();
+    ctx.moveTo(x + .5, y1);
+    ctx.lineTo(x + .5, y2);
+    ctx.stroke();
+  };
   let vx = xL;
   for (let i = 0; i < cols.length; i++){
-    if (i === 0) { ctx.moveTo(vx + .5, tableTop); ctx.lineTo(vx + .5, t0 + rowH * 6); }
+    if (i === 0) vline(xL, tableTop, t0 + rowH * 6);
     vx += cols[i];
-    ctx.moveTo(vx - .5, tableTop); ctx.lineTo(vx - .5, t0 + rowH * 6);
+    const boundary = i + 1;
+    const internal = (boundary >= 4 && boundary <= 6)
+                  || (hasBian && boundary >= 9 && boundary <= 11);
+    vline(vx, internal ? h2 : tableTop, t0 + rowH * 6);
   }
-  ctx.stroke();
 
   /* 六爻 */
   const kongSet = {};
@@ -2177,7 +2187,7 @@ function buildChartCanvas(){
     }
 
     drawBar(ctx, cx[6], cy, pp.bits[i], pp.moving[i]);
-    if (pp.moving[i]) T(ctx, pp.bits[i] ? '○' : '×', cx[6] + 37, cy, 13, '#a3352a', 'center', true);
+    if (pp.moving[i]) T(ctx, pp.bits[i] ? '○' : '×', cx[6] + 34, cy, 12, '#a3352a', 'center', true);
 
     T(ctx, wangShuai(monthWx, ZHI_WX[gz[1]]) || '·', cx[5], cy, 14, '#8a6d3b', 'center', false, cols[5] - 6);
 
