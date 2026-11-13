@@ -1,9 +1,9 @@
 /* 六爻装卦 · 离线缓存
    第一次联网打开后，浏览器把页面存进本地；此后断网也能打开。
-   改动工具本体时，把 CACHE 的版本号加一（v1 → v2），用户下次联网会自动换新。 */
+   改动工具本体时，把 CACHE 的版本号加一（v10 → v11），用户下次联网会自动换新。 */
 
-const CACHE = 'liuyao-tool-v1';
-const ASSETS = ['./', './index.html'];
+const CACHE = 'liuyao-tool-v10';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-512-maskable.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
   self.skipWaiting();
@@ -18,7 +18,7 @@ self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(
-        keys.filter(function (k) { return k !== CACHE; })
+        keys.filter(function (k) { return k.indexOf('liuyao-tool-') === 0 && k !== CACHE; })
             .map(function (k) { return caches.delete(k); })
       );
     }).then(function () {

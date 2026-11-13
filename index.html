@@ -3,7 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>六爻装卦</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<meta name="theme-color" content="#3a2f2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="仙客六爻">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>仙客六爻 · 六爻装卦</title>
+<meta name="author" content="仙客六爻">
+<meta name="application-name" content="仙客六爻">
+<meta name="description" content="仙客六爻：纯本地离线六爻装卦工具，只装卦，不代摇，不解读。">
 <style>
   :root{
     --ink:#2b2622;
@@ -480,6 +490,12 @@
     .time-row{ flex-direction:column; align-items:stretch; gap:10px; }
     .time-row label{ width:100%; flex:0 0 auto; justify-content:space-between; }
     .time-row label.note{ flex:0 0 auto; }
+
+    .case-item{ flex-wrap:wrap; align-items:flex-start; gap:4px 10px; }
+    .case-when{ flex:1 1 100%; }
+    .case-gua{ flex:1 1 auto; min-width:0; }
+    .case-note{ flex:1 1 100%; white-space:normal; overflow:visible; }
+    .case-act{ margin-left:auto; }
     .time-row input[type=date],
     .time-row select{ flex:1; min-width:0; }
     .hint{ flex:0 0 auto; }
@@ -535,19 +551,62 @@
     }
   }
 
+  /* ---------- 子时专业选项 ---------- */
+  .zi-settings{
+    margin-top:14px;
+    padding-top:10px;
+    border-top:1px dashed var(--line2);
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:12px;
+    color:var(--ink3);
+  }
+  .zi-settings summary{
+    cursor:pointer;
+    color:var(--gold);
+    letter-spacing:1px;
+    outline:none;
+  }
+  .zi-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:10px;}
+  .zi-check,.zi-rule label{display:inline-flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap;}
+  .zi-rule{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;}
+  .zi-rule[hidden]{display:none;}
+  .zi-rule span{color:var(--gold);}
+  .zi-settings .hint{margin-top:6px;font-size:12px;line-height:1.7;color:var(--ink3);}
+  .cross-time{flex:1 1 100%;font-size:12.5px;color:var(--ink2);}
+  .pc-sign{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px 14px;
+    margin-top:8px;
+    padding:12px 2px 0;
+    border-top:1px dashed var(--line2);
+    font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:12px;
+    color:var(--ink3);
+  }
+  .pc-sign label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--ink2);}
+  .pc-sign .hint{flex:1 1 100%;font-size:11.5px;color:var(--ink3);}
+  @media (max-width:600px){
+    .zi-row{flex-direction:column;align-items:flex-start;gap:8px;}
+    .zi-rule{gap:6px 12px;}
+    .pc-sign{display:none !important;}
+  }
+
   /* ---------- 打印 ---------- */
   .print-only{ display:none; }
   @media print{
     .print-only{ display:inline !important; }
     .screen-only{ display:none !important; }
     .seg-group{ display:none !important; }
-    @page{ size:A4 landscape; margin:8mm; }
+    @page{ size:A4 landscape; margin:5mm; }
     html, body{ background:#fff !important; }
     .banner, h1, .sub, .no-print, .actions, .card h2{ display:none !important; }
     .wrap{ max-width:none; margin:0; padding:0; }
-    table.pan th, table.pan td{ padding:6px 4px !important; }
-    .rels{ font-size:11px !important; line-height:1.65 !important; margin-top:10px !important; padding:7px 11px !important; }
-    .legend{ font-size:9.5pt !important; line-height:1.6 !important; margin-top:10px !important; padding-top:8px !important; }
+    table.pan th, table.pan td{ padding:4px 4px !important; }
+    .rels{ font-size:10px !important; line-height:1.4 !important; margin-top:6px !important; padding:5px 9px !important; }
+    .cross{ margin-top:7px !important; padding:6px 9px !important; font-size:10.5px !important; line-height:1.55 !important; }
+    .legend{ font-size:8.7pt !important; line-height:1.35 !important; margin-top:5px !important; padding-top:3px !important; }
     .card{
       border:none !important;
       box-shadow:none !important;
@@ -596,6 +655,18 @@
       <button class="btn" id="btnNow" type="button">取当前时间</button>
       <div class="hint" id="timeHint"></div>
     </div>
+    <details class="zi-settings no-print" id="ziSettings">
+      <summary>高级：子时（默认不占）</summary>
+      <div class="zi-row">
+        <label class="zi-check"><input type="checkbox" id="allowZi"> 允许子时（专业选项）</label>
+        <div class="zi-rule" id="ziRuleWrap" hidden>
+          <span>换日口径</span>
+          <label><input type="radio" name="ziRule" value="23" checked> 23:00 子初换日</label>
+          <label><input type="radio" name="ziRule" value="0"> 00:00 零点换日</label>
+        </div>
+      </div>
+      <div class="hint" id="ziHint">默认子时不占；开启后可录晚子时与早子时。</div>
+    </details>
   </section>
 
   <section class="card">
@@ -620,6 +691,11 @@
     <div id="caseList"></div>
   </section>
 
+  <div class="pc-sign no-print" id="signSetting">
+    <label><input type="checkbox" id="signPng" checked> 导出图片署名「仙客六爻」</label>
+    <span class="hint" id="signHint">默认开启；只出现在图片页脚，不遮挡盘面。</span>
+  </div>
+
 </div>
 
 <div class="mobile-bar" id="mobileBar">
@@ -632,19 +708,6 @@
   <button class="close" id="imgClose" type="button">关闭</button>
 </div>
 
-<script>
-/* 在线访问时注册离线缓存；用本地文件（file://）打开时自动跳过，不影响任何现有用法 */
-(function () {
-  if (!('serviceWorker' in navigator)) return;
-  var p = location.protocol;
-  var h = location.hostname;
-  if (p !== 'https:' && p !== 'http:') return;
-  if (p === 'http:' && h !== 'localhost' && h !== '127.0.0.1') return;
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function () {});
-  });
-})();
-</script>
 
 <script>
 /* ===== CORE BEGIN ===== */
@@ -767,72 +830,157 @@ const JIE_NAME = ['小寒','立春','惊蛰','清明','立夏','芒种','小暑'
 const JIE_ZHI  = [1,2,3,4,5,6,7,8,9,10,11,0];
 const JIE_AT   = [0,2,4,6,8,10,12,14,16,18,20,22];
 
-function minutesOf(y, m, d, h, mi){ return jdn(y, m, d) * 1440 + h * 60 + mi; }
-
 function termAt(y, i){
   const row = SOLAR_RAW[y - SOLAR_YEAR0];
   if (!row) return null;
   const s = row.substr(i * 8, 8);
   return { mon:+s.substr(0,2), day:+s.substr(2,2), hour:+s.substr(4,2), min:+s.substr(6,2) };
 }
-function termMinutes(y, i){
+
+/* 节气表是北京时间（UTC+8），转成真正的 UTC 毫秒；不能再拿本地 Date 直接构造。 */
+function termUtc(y, i){
   const t = termAt(y, i);
   if (!t) return null;
-  return minutesOf(y, t.mon, t.day, t.hour, t.min);
+  return Date.UTC(y, t.mon - 1, t.day, t.hour, t.min) - 8 * 3600 * 1000;
 }
 function jieList(y){
   const out = [];
   [y-1, y, y+1].forEach(function(yy){
     JIE_AT.forEach(function(pos, k){
-      const mm = termMinutes(yy, pos);
-      if (mm !== null) out.push({ m:mm, zhi:JIE_ZHI[k], name:JIE_NAME[k], year:yy });
+      const utc = termUtc(yy, pos);
+      if (utc !== null) out.push({ utc:utc, zhi:JIE_ZHI[k], name:JIE_NAME[k], year:yy });
     });
   });
-  out.sort(function(a, b){ return a.m - b.m; });
+  out.sort(function(a, b){ return a.utc - b.utc; });
   return out;
 }
-/* 某个时辰（120 分钟）里有没有落进交节 */
-function jieInside(y, startMin, endMin){
+/* 某个时辰有没有落进交节（起止都按绝对毫秒） */
+function jieInside(y, startMs, endMs){
   const jl = jieList(y);
   for (let i = 0; i < jl.length; i++){
-    if (jl[i].m >= startMin && jl[i].m < endMin) return jl[i];
+    if (jl[i].utc >= startMs && jl[i].utc < endMs) return jl[i];
   }
   return null;
 }
+
+/* 时辰起止：普通时辰按 1-11，子时按晚子/早子。 */
+function hourSpan(hourIdx, ziHalf){
+  if (hourIdx === 0){
+    return ziHalf === 'early' ? { start:0, end:1 } : { start:23, end:24 };
+  }
+  const s = hourIdx * 2 - 1;
+  return { start:s, end:s + 2 };
+}
+function hourName(hourIdx, ziHalf){
+  if (hourIdx === 0) return ziHalf === 'early' ? '早子时' : '晚子时';
+  return ZHI[hourIdx] + '时';
+}
+function hourRangeText(hourIdx, ziHalf){
+  if (hourIdx === 0){
+    return ziHalf === 'early' ? '00:00–01:00' : '23:00–24:00';
+  }
+  return String(hourIdx * 2 - 1).padStart(2,'0') + ':00–'
+       + String(hourIdx * 2 + 1).padStart(2,'0') + ':00';
+}
+function addDays(y, m, d, n){
+  const t = new Date(Date.UTC(y, m - 1, d + n));
+  return { y:t.getUTCFullYear(), m:t.getUTCMonth() + 1, d:t.getUTCDate() };
+}
+/* 23:00 子初换日只管“晚子”这一段；早子已经是次日公历日期。 */
+function effectiveDay(y, m, d, hourIdx, ziHalf, dayRule){
+  if (hourIdx === 0 && ziHalf === 'late' && dayRule === '23'){
+    return addDays(y, m, d, 1);
+  }
+  return { y:y, m:m, d:d };
+}
+function tzForDate(dt){
+  let name = '';
+  try { name = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e){}
+  return { name:name, offset:-dt.getTimezoneOffset() };
+}
+function formatOffset(min){
+  const n = Math.round(Number(min) || 0);
+  const sign = n >= 0 ? '+' : '-';
+  const a = Math.abs(n);
+  return 'UTC' + sign + String(Math.floor(a / 60)).padStart(2,'0')
+       + ':' + String(a % 60).padStart(2,'0');
+}
+function tzLabel(tz){
+  if (!tz) return '时区未知';
+  const name = (tz.name ? tz.name + ' · ' : '');
+  return name + formatOffset(tz.offset);
+}
+/* 把一个绝对时刻格式化成指定时区的钟面时间；时区名不可用时退回固定偏移。 */
+function formatTzDateTime(ts, tzName, fallbackOffset){
+  if (tzName){
+    try {
+      const parts = new Intl.DateTimeFormat('zh-CN', {
+        timeZone:tzName, year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', hourCycle:'h23'
+      }).formatToParts(new Date(ts));
+      const m = {};
+      parts.forEach(function(p){ m[p.type] = p.value; });
+      return m.year + '-' + m.month + '-' + m.day + ' ' + m.hour + ':' + m.minute;
+    } catch (e){}
+  }
+  const d = new Date(ts + (Number(fallbackOffset) || 0) * 60000);
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2,'0')
+       + '-' + String(d.getUTCDate()).padStart(2,'0') + ' '
+       + String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0');
+}
+function localSpan(y, m, d, hourIdx, ziHalf){
+  const h = hourSpan(hourIdx, ziHalf);
+  const start = new Date(y, m - 1, d, h.start, 0, 0, 0);
+  const end   = new Date(y, m - 1, d, h.end, 0, 0, 0);
+  return { start:start.getTime(), end:end.getTime(), tz:tzForDate(start) };
+}
 /* 四柱：side 用于「交节正好落在本时辰内」时取交节前还是交节后 */
-function siZhu(y, m, d, hourIdx, side){
-  const startHour = ((hourIdx * 2 - 1) % 24 + 24) % 24;
-  const s = minutesOf(y, m, d, startHour, 0);
-  const e = s + 120;
-  const cross = jieInside(y, s, e);
+function siZhu(y, m, d, hourIdx, side, opts){
+  opts = opts || {};
+  const ziHalf = opts.ziHalf || 'late';
+  const dayRule = opts.dayRule || '23';
+  const span = opts.span || localSpan(y, m, d, hourIdx, ziHalf);
+  const start = span.start, end = span.end;
+  const inRange = y >= SOLAR_YEAR0 && y < SOLAR_YEAR0 + SOLAR_RAW.length;
+  const cross = inRange ? jieInside(y, start, end) : null;
 
-  let dt = s + 60;
-  if (cross) dt = (side === 'after') ? cross.m + 1 : cross.m - 1;
+  /* 年、月只认绝对时刻；日、时仍按录入地当地日期和时辰。 */
+  let dt = (start + end) / 2;
+  if (cross) dt = cross.utc + (side === 'after' ? 60000 : -60000);
 
-  const day  = dayGZ(y, m, d);
+  const eff = effectiveDay(y, m, d, hourIdx, ziHalf, dayRule);
+  const day  = dayGZ(eff.y, eff.m, eff.d);
   const hour = hourGZ(day.gan, hourIdx);
 
-  const lichun  = termMinutes(y, 2);
-  const yearNum = (lichun !== null && dt >= lichun) ? y : y - 1;
-  const yGan = ((yearNum - 4) % 10 + 10) % 10;
-  const yZhi = ((yearNum - 4) % 12 + 12) % 12;
+  /* 表外不拿上一年的最后一个节气硬套，否则 2053 年会一直停在 2052 年的大雪。 */
+  const lichun = inRange ? termUtc(y, 2) : null;
+  let yearNum = null;
+  if (lichun !== null) yearNum = (dt >= lichun) ? y : y - 1;
 
-  const jl = jieList(y);
-  let cur = null;
-  for (let i = 0; i < jl.length; i++){ if (jl[i].m <= dt) cur = jl[i]; }
+  let yGan = null, yZhi = null;
+  let year = { gan:null, zhi:null, text:null };
+  if (yearNum !== null){
+    yGan = ((yearNum - 4) % 10 + 10) % 10;
+    yZhi = ((yearNum - 4) % 12 + 12) % 12;
+    year = { gan:yGan, zhi:yZhi, text:GAN[yGan] + ZHI[yZhi] };
+  }
 
-  let mGan = null, mZhi = null;
-  if (cur){
+  let mGan = null, mZhi = null, cur = null;
+  if (inRange){
+    const jl = jieList(y);
+    for (let i = 0; i < jl.length; i++){ if (jl[i].utc <= dt) cur = jl[i]; }
+  }
+  if (cur && yGan !== null){
     mZhi = cur.zhi;
     const yinGan = ((yGan % 5) * 2 + 2) % 10;
     mGan = (yinGan + ((mZhi - 2 + 12) % 12)) % 10;
   }
 
   return {
-    day:day, hour:hour,
-    year:{ gan:yGan, zhi:yZhi, text:GAN[yGan] + ZHI[yZhi] },
+    day:day, hour:hour, inRange:inRange,
+    year:year,
     month:{ gan:mGan, zhi:mZhi, text: (mGan === null ? null : GAN[mGan] + ZHI[mZhi]) },
-    cross:cross
+    cross:cross, start:start, end:end, tz:span.tz || opts.tz || null
   };
 }
 
@@ -884,11 +1032,13 @@ function pairTags(a, b){
   return t;
 }
 function heWx(a, b){
-  const k = [a, b].sort().join('');
-  return HE_WX[k] || '';
+  return HE_WX[a + b] || HE_WX[b + a] || '';
 }
 
-/* 反吟伏吟：依《增删卜易·反伏章》——爻反吟为变出之爻与本爻相冲，伏吟为变出之爻与本爻相同 */
+/* 反吟伏吟：依《增删卜易·反伏章》。
+   反吟看内外卦三爻整体是否全部相冲，不要求三爻全动；
+   伏吟看内外卦三爻地支是否全部不变，也不要求三爻全动。
+   卦反吟（八纯互变）另列，避免和内外反吟重复。 */
 const PURE_OPPOSE = {'乾为天':'坤为地','坤为地':'乾为天','震为雷':'巽为风','巽为风':'震为雷',
                      '坎为水':'离为火','离为火':'坎为水','艮为山':'兑为泽','兑为泽':'艮为山'};
 function fanyinFuyin(pp){
@@ -898,11 +1048,18 @@ function fanyinFuyin(pp){
   const out = [];
   const ch = function(i){ return CHONG[a[i]] === b[i]; };
   const sm = function(i){ return a[i] === b[i]; };
-  const inC = pp.moving[0] && pp.moving[1] && pp.moving[2] && ch(0) && ch(1) && ch(2);
-  const outC = pp.moving[3] && pp.moving[4] && pp.moving[5] && ch(3) && ch(4) && ch(5);
-  const inS = pp.moving[0] && pp.moving[1] && pp.moving[2] && sm(0) && sm(1) && sm(2);
-  const outS = pp.moving[3] && pp.moving[4] && pp.moving[5] && sm(3) && sm(4) && sm(5);
-  if (inC || outC){
+  const inChanged  = pp.ben.lower !== pp.bian.lower;
+  const outChanged = pp.ben.upper !== pp.bian.upper;
+
+  const inC  = inChanged  && ch(0) && ch(1) && ch(2);
+  const outC = outChanged && ch(3) && ch(4) && ch(5);
+  const inS  = inChanged  && sm(0) && sm(1) && sm(2);
+  const outS = outChanged && sm(3) && sm(4) && sm(5);
+  const pure = PURE_OPPOSE[pp.ben.name] === pp.bian.name;
+
+  if (pure){
+    out.push('卦反吟（八纯互变）');
+  } else if (inC || outC){
     if (inC && outC) out.push('反吟（内外皆冲）');
     else if (inC) out.push('内卦反吟');
     else out.push('外卦反吟');
@@ -912,7 +1069,6 @@ function fanyinFuyin(pp){
     else if (inS) out.push('内卦伏吟');
     else out.push('外卦伏吟');
   }
-  if (PURE_OPPOSE[pp.ben.name] === pp.bian.name) out.push('卦反吟（八纯互变）');
   return out;
 }
 function relationLines(pp, sz){
@@ -929,6 +1085,7 @@ function relationLines(pp, sz){
     for (let i = 0; i < 6; i++){
       if (CHONG[zhi[i]] === mz) hit.push(POSN[i] + '爻' + zhi[i] + '（月破）');
       else if (HE[zhi[i]] === mz) hit.push(POSN[i] + '爻' + zhi[i] + '（合月建）');
+      else if (zhi[i] === mz) hit.push(POSN[i] + '爻' + zhi[i] + '（临月建）');
       else if (MU[ZHI_WX[zhi[i]]] === mz) hit.push(POSN[i] + '爻' + zhi[i] + '（入月墓）');
     }
     lines.push('月建 ' + mz + ZHI_WX[mz] + '：' + (hit.length ? hit.join('、') : '与各爻无涉'));
@@ -1082,7 +1239,10 @@ function relationLines(pp, sz){
 }
 
 /* 装卦主函数。state：六个代号，初爻起 —— O 老阳 / Y 少阳 / X 老阴 / Z 少阴 */
-function paipan(state, dateStr, hourIdx){
+function paipan(state, dateStr, hourIdx, opts){
+  opts = opts || {};
+  const ziHalf = opts.ziHalf || 'late';
+  const dayRule = opts.dayRule || '23';
   const bits   = state.map(function(k){ return (k === 'O' || k === 'Y') ? 1 : 0; });
   const moving = state.map(function(k){ return k === 'O' || k === 'X'; });
 
@@ -1125,11 +1285,14 @@ function paipan(state, dateStr, hourIdx){
   let day = null, hour = null, kong = null;
   if (dateStr){
     const p = dateStr.split('-').map(Number);
-    if (p.length === 3 && p[0] && p[1] && p[2]) day = dayGZ(p[0], p[1], p[2]);
+    if (p.length === 3 && p[0] && p[1] && p[2]){
+      const eff = effectiveDay(p[0], p[1], p[2], hourIdx, ziHalf, dayRule);
+      day = dayGZ(eff.y, eff.m, eff.d);
+    }
   }
   if (day){
     kong = xunKong(day.idx);
-    if (hourIdx !== null && hourIdx !== undefined && hourIdx > 0){
+    if (hourIdx !== null && hourIdx !== undefined){
       hour = hourGZ(day.gan, hourIdx);
     }
   }
@@ -1165,10 +1328,28 @@ const HOURS = [
   {i:1, t:'丑'}, {i:2, t:'寅'}, {i:3, t:'卯'}, {i:4, t:'辰'}, {i:5, t:'巳'},
   {i:6, t:'午'}, {i:7, t:'未'}, {i:8, t:'申'}, {i:9, t:'酉'}, {i:10, t:'戌'}, {i:11, t:'亥'}
 ];
+const ZI_OPTIONS = [
+  {v:'0L', t:'晚子时', half:'late',  range:'23:00–24:00'},
+  {v:'0E', t:'早子时', half:'early', range:'00:00–01:00'}
+];
+const DAY_RULE_LABEL = {'23':'23:00 子初换日', '0':'00:00 零点换日'};
+const ZI_PREF_KEY = 'liuyao_allow_zishi_v1';
+const ZI_RULE_KEY = 'liuyao_zishi_day_rule_v1';
+const SIGN_PREF_KEY = 'liuyao_sign_png_v1';
 
 let state = [null, null, null, null, null, null];
 let qinMode = 'ben'; /* ben = 按本卦宫，own = 按变卦宫 */
 let jieqiSide = 'before'; /* 交节落在本时辰内时，取交节前 / 交节后 */
+let allowZi = false;
+let ziDayRule = '23';
+let imageSign = true;
+let activeSpan = null;
+let tzUnknown = false;
+try {
+  allowZi = localStorage.getItem(ZI_PREF_KEY) === '1';
+  if (localStorage.getItem(ZI_RULE_KEY) === '0') ziDayRule = '0';
+  if (localStorage.getItem(SIGN_PREF_KEY) === '0') imageSign = false;
+} catch (e){}
 
 const rowsEl  = document.getElementById('rows');
 const dateEl  = document.getElementById('theDate');
@@ -1178,6 +1359,13 @@ const resEl   = document.getElementById('result');
 const noteEl  = document.getElementById('theNote');
 const actHintEl  = document.getElementById('actHint');
 const storeHintEl = document.getElementById('storeHint');
+const allowZiEl  = document.getElementById('allowZi');
+const ziRuleWrap = document.getElementById('ziRuleWrap');
+const ziRuleEls  = Array.prototype.slice.call(document.querySelectorAll('input[name="ziRule"]'));
+const ziHintEl   = document.getElementById('ziHint');
+const ziSettingsEl = document.getElementById('ziSettings');
+const signPngEl  = document.getElementById('signPng');
+const signHintEl = document.getElementById('signHint');
 let lastRender = null;
 
 function setActions(on){
@@ -1228,16 +1416,72 @@ function setActions(on){
   });
 })();
 
-/* 时辰下拉：禁子时 */
-(function buildHours(){
+/* 时辰下拉：默认只列十一时辰；专业开关开启后加晚子/早子。 */
+function updateZiUI(){
+  if (allowZiEl) allowZiEl.checked = allowZi;
+  if (ziRuleWrap) ziRuleWrap.hidden = !allowZi;
+  ziRuleEls.forEach(function(r){ r.checked = (r.value === ziDayRule); });
+  if (ziSettingsEl && allowZi) ziSettingsEl.open = true;
+  if (ziHintEl){
+    ziHintEl.textContent = allowZi
+      ? '已允许子时：晚子时 23:00–24:00，早子时 00:00–01:00；日期填钟面公历日期。'
+      : '默认子时不占；开启后可录晚子时与早子时。';
+  }
+}
+function saveZiPrefs(){
+  try {
+    localStorage.setItem(ZI_PREF_KEY, allowZi ? '1' : '0');
+    localStorage.setItem(ZI_RULE_KEY, ziDayRule);
+  } catch (e){}
+}
+function buildHours(){
+  const cur = hourEl.value;
   let html = '<option value="">请选时辰</option>';
+  if (allowZi){
+    html += '<optgroup label="子时（专业选项）">';
+    ZI_OPTIONS.forEach(function(o){
+      html += '<option value="' + o.v + '">' + o.t + '　' + o.range + '</option>';
+    });
+    html += '</optgroup>';
+  }
+  html += '<optgroup label="其余时辰">';
   HOURS.forEach(function(h){
     const a = String(h.i * 2 - 1).padStart(2,'0') + ':00';
     const b = String(h.i * 2 + 1).padStart(2,'0') + ':00';
     html += '<option value="' + h.i + '">' + h.t + '时　' + a + '–' + b + '</option>';
   });
+  html += '</optgroup>';
   hourEl.innerHTML = html;
+  if (cur && hourEl.querySelector('option[value="' + cur + '"]')) hourEl.value = cur;
+  else if (cur) hourEl.value = '';
+}
+(function initHours(){
+  buildHours();
+  updateZiUI();
 })();
+
+(function initSignUI(){
+  if (signPngEl) signPngEl.checked = imageSign;
+  if (signHintEl){
+    signHintEl.textContent = imageSign
+      ? '默认开启；只出现在图片页脚，不遮挡盘面。'
+      : '已关闭；导出图不再显示「仙客六爻」署名。';
+  }
+})();
+
+function spanKey(dateStr, rawHour, dayRule){
+  return dateStr + '|' + rawHour + '|' + (dayRule || '');
+}
+/* 当前选择对应的时间段：优先沿用刚打开存档里的精确 UTC 起止；否则按本机时区算。 */
+function getTimeSpan(dateStr, rawHour, ziHalf, dayRule){
+  const key = spanKey(dateStr, rawHour, dayRule);
+  /* 只有从存档载入时才固定原来的 UTC 时间段；当前输入每次按本机时区重算，防止旅行/夏令时切换后沿用旧偏移。 */
+  if (activeSpan && activeSpan.fixed && activeSpan.key === key) return activeSpan;
+  const p = dateStr.split('-').map(Number);
+  const hy = (rawHour === '0L' || rawHour === '0E') ? 0 : Number(rawHour);
+  const s = localSpan(p[0], p[1], p[2], hy, ziHalf);
+  return { key:key, start:s.start, end:s.end, tz:s.tz, fixed:false };
+}
 
 function barHTML(bit, moving){
   const bar = bit
@@ -1287,14 +1531,22 @@ function render(){
     return;
   }
 
-  const hy = Number(hourEl.value);
-  const pp = paipan(state, dateEl.value, hy);
+  const rawHour = hourEl.value;
+  const isZi = (rawHour === '0L' || rawHour === '0E');
+  const hy = isZi ? 0 : Number(rawHour);
+  const ziHalf = rawHour === '0L' ? 'late' : (rawHour === '0E' ? 'early' : null);
+  const dayRule = isZi ? ziDayRule : null;
+  const dpart = dateEl.value.split('-');
+  const Y = Number(dpart[0]), Mo = Number(dpart[1]), D = Number(dpart[2]);
+  const span = getTimeSpan(dateEl.value, rawHour, ziHalf, dayRule);
+  const opts = { ziHalf:ziHalf || 'late', dayRule:dayRule || '23', span:span };
+  const pp = paipan(state, dateEl.value, hy, opts);
+  const sz = siZhu(Y, Mo, D, hy, jieqiSide, opts);
   const kongSet = {};
   pp.kong.forEach(function(z){ kongSet[z] = true; });
 
-  const hs = HOURS.filter(function(h){ return h.i === hy; })[0];
-  const hRange = String(hy * 2 - 1).padStart(2,'0') + ':00–' + String(hy * 2 + 1).padStart(2,'0') + ':00';
-  const dpart = dateEl.value.split('-');
+  const hsName = hourName(hy, ziHalf);
+  const hRange = hourRangeText(hy, ziHalf);
 
   /* 盘头 */
   let head = '<div class="head"><div class="names">'
@@ -1323,34 +1575,39 @@ function render(){
   head += '</div>';
 
   /* 时间行 */
-  const Y = Number(dpart[0]), Mo = Number(dpart[1]), D = Number(dpart[2]);
-  const sz = siZhu(Y, Mo, D, hy, jieqiSide);
   const monthWx = (sz.month.zhi !== null) ? ZHI_WX[ZHI[sz.month.zhi]] : null;
   const kongText = pp.kong.map(function(z){ return ZHI[z]; }).join('');
   const noteTxt = (noteEl && noteEl.value ? noteEl.value.trim() : '');
-  const siZhuText = sz.year.text + '年　'
-    + (sz.month.text ? sz.month.text + '月　' : '')
+  const siZhuText = (sz.year.text ? sz.year.text + '年　' : '年柱—　')
+    + (sz.month.text ? sz.month.text + '月　' : '月柱—　')
     + sz.day.text + '日　' + sz.hour.text + '时';
+  const tzText = tzUnknown ? '未知（旧存档，按当前设备时区重算）' : tzLabel(sz.tz);
   head += '<div class="stamp">'
     + '<span class="kv"><em>起卦</em>公历 ' + Y + '年' + Mo + '月' + D + '日 · '
-    + hs.t + '时（' + hRange + '）</span>'
+    + hsName + '（' + hRange + '）</span>'
+    + '<span class="kv"><em>时区</em>' + esc(tzText) + '</span>'
+    + (isZi ? '<span class="kv"><em>换日</em>' + DAY_RULE_LABEL[ziDayRule] + '</span>' : '')
     + '<span class="kv"><em>四柱</em>' + siZhuText + '</span>'
     + '<span class="kv"><em>旬空</em>' + kongText + '</span>'
     + (noteTxt ? '<span class="kv"><em>所问</em>' + esc(noteTxt) + '</span>' : '')
     + '</div>';
 
-  if (!sz.month.text){
-    head += '<div class="cross">节气表只到 1900–2052，这个日期推不出月柱（月建）。'
-          + '日柱、时柱和装卦不受影响。</div>';
+  if (!sz.year.text || !sz.month.text){
+    const missing = (!sz.year.text && !sz.month.text) ? '年柱和月柱'
+                  : (!sz.year.text ? '年柱' : '月柱');
+    head += '<div class="cross">节气表覆盖 1900–2052，这个日期缺少可用的交节数据，推不出'
+          + missing + '。日柱、时柱和装卦不受影响。</div>';
   }
   if (sz.cross){
     const t = sz.cross;
-    const chh = String(Math.floor((t.m % 1440) / 60)).padStart(2, '0');
-    const cmm = String(t.m % 60).padStart(2, '0');
-    head += '<div class="cross">本时辰内有交节：<b>' + t.name + ' ' + chh + ':' + cmm + '</b>。'
-          + '交节前后月柱不同，'
+    const localTerm = formatTzDateTime(t.utc, sz.tz && sz.tz.name, sz.tz && sz.tz.offset);
+    const bjTerm = formatTzDateTime(t.utc, 'Asia/Shanghai', 480);
+    const localLabel = tzUnknown ? '当前设备当地 ' : '当地 ';
+    head += '<div class="cross">本时辰内有交节：<b>' + t.name + '</b>'
+          + '<span class="cross-time">' + localLabel + localTerm + '　·　北京 ' + bjTerm + '</span>'
           + '<span class="screen-only">请确认摇卦在交节哪一边：</span>'
-          + '<span class="print-only">已按交节' + (jieqiSide === 'after' ? '后' : '前') + '计。</span>'
+          + '<span class="print-only">已按交节' + (jieqiSide === 'after' ? '后' : '前')
+          + '计（' + localLabel + localTerm + '）。</span>'
           + '<span class="seg-group">'
           + '<button type="button" class="seg' + (jieqiSide === 'before' ? ' on' : '') + '" data-side="before">交节前</button>'
           + '<button type="button" class="seg' + (jieqiSide === 'after' ? ' on' : '') + '" data-side="after">交节后</button>'
@@ -1434,7 +1691,8 @@ function render(){
           + '<br>变卦六亲默认按本卦宫（' + pp.ben.gong + '宫' + pp.ben.wx
           + '）推；切到「按变卦宫」可对照。'
         : '　·　六爻皆静，无变卦。')
-    + '<br>年柱以立春换年，月柱以十二节分界；<em>月建</em>即月柱之支。节气按北京时间。'
+    + '<br>年柱以立春换年，月柱以十二节分界；<em>月建</em>即月柱之支。节气按北京时间，程序会先把本地时间换算成绝对时刻再比较。'
+    + (isZi ? '<br>子时换日：' + DAY_RULE_LABEL[ziDayRule] + '；晚子/早子按钟面公历日期录入。' : '')
     + '<br>节气数据：1900—2025 取自中国科学院紫金山天文台《1900—2025年日历》；'
     + '2026—2052 取用中国历法公共数据集（CC BY 4.0）。'
     + '</div>';
@@ -1446,8 +1704,9 @@ function render(){
 
   resEl.innerHTML = head + '<div class="tablewrap">' + table + '</div>' + rels + legend;
 
-  lastRender = { pp:pp, sz:sz, Y:Y, Mo:Mo, D:D, hy:hy, qinMode:qinMode,
-                 jieqiSide:jieqiSide, note:noteEl.value.trim() };
+  lastRender = { pp:pp, sz:sz, Y:Y, Mo:Mo, D:D, hy:hy, ziHalf:ziHalf, dayRule:dayRule,
+                 qinMode:qinMode, jieqiSide:jieqiSide, note:noteEl.value.trim(),
+                 tz:span.tz, span:span, tzUnknown:tzUnknown };
   setActions(true);
 
   resEl.querySelectorAll('.seg').forEach(function(b){
@@ -1464,12 +1723,22 @@ function pad2(n){ return String(n).padStart(2,'0'); }
 function fillNow(notify){
   const now = new Date();
   jieqiSide = 'before';
+  activeSpan = null;
+  tzUnknown = false;
   dateEl.value = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
   const hIdx = Math.floor(((now.getHours() + 1) % 24) / 2);
   if (hIdx === 0){
-    hourEl.value = '';
-    hintEl.className = 'hint warn';
-    hintEl.textContent = '当前是本机子时（23:00–01:00）。本工具子时不占，请手动选择时辰。';
+    if (!allowZi){
+      hourEl.value = '';
+      hintEl.className = 'hint warn';
+      hintEl.textContent = '当前是本机子时（23:00–01:00）。本工具默认子时不占，请手动选择时辰；如需子时，请在「高级：子时」中开启。';
+    } else {
+      const half = (now.getHours() === 23) ? 'late' : 'early';
+      hourEl.value = (half === 'late') ? '0L' : '0E';
+      hintEl.className = 'hint';
+      hintEl.textContent = (notify ? '已按本机时间填入 ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + '，' : '')
+        + '当前为' + hourName(0, half) + '（' + hourRangeText(0, half) + '）；换日口径：' + DAY_RULE_LABEL[ziDayRule] + '。';
+    }
   } else {
     hourEl.value = String(hIdx);
     hintEl.className = 'hint';
@@ -1481,29 +1750,121 @@ function fillNow(notify){
   render();
 }
 
-dateEl.addEventListener('change', function(){ jieqiSide = 'before'; render(); });
+dateEl.addEventListener('change', function(){
+  activeSpan = null; tzUnknown = false; jieqiSide = 'before'; render();
+});
 hourEl.addEventListener('change', function(){
-  jieqiSide = 'before';
+  activeSpan = null; tzUnknown = false; jieqiSide = 'before';
   if (hourEl.value){
+    const raw = hourEl.value;
+    const hy = (raw === '0L' || raw === '0E') ? 0 : Number(raw);
+    const half = raw === '0L' ? 'late' : (raw === '0E' ? 'early' : null);
     hintEl.className = 'hint';
-    hintEl.textContent = '按你选的时辰算。';
+    hintEl.textContent = '按你选的' + hourName(hy, half) + '（' + hourRangeText(hy, half) + '）算。';
   }
   render();
 });
 document.getElementById('btnNow').addEventListener('click', function(){ fillNow(true); });
 
+if (allowZiEl){
+  allowZiEl.addEventListener('change', function(){
+    allowZi = !!allowZiEl.checked;
+    saveZiPrefs();
+    updateZiUI();
+    if (!allowZi && (hourEl.value === '0L' || hourEl.value === '0E')) hourEl.value = '';
+    activeSpan = null; tzUnknown = false;
+    buildHours();
+    hintEl.className = allowZi ? 'hint' : 'hint warn';
+    hintEl.textContent = allowZi
+      ? '已允许子时，请选择晚子时或早子时；也可以点「取当前时间」。'
+      : '默认子时不占；当前时辰列表只有十一个时辰。';
+    render();
+  });
+}
+ziRuleEls.forEach(function(r){
+  r.addEventListener('change', function(){
+    if (!r.checked) return;
+    ziDayRule = r.value;
+    saveZiPrefs();
+    activeSpan = null;
+    render();
+  });
+});
+
+if (signPngEl){
+  signPngEl.addEventListener('change', function(){
+    imageSign = !!signPngEl.checked;
+    try { localStorage.setItem(SIGN_PREF_KEY, imageSign ? '1' : '0'); } catch (e){}
+    if (signHintEl){
+      signHintEl.textContent = imageSign
+        ? '默认开启；只出现在图片页脚，不遮挡盘面。'
+        : '已关闭；导出图不再显示「仙客六爻」署名。';
+    }
+  });
+}
+
 /* ---------- 卦例存档 ---------- */
 const STORE_KEY = 'liuyao_cases_v1';
-let cases = loadCases();
+
+function validDateStr(s){
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const p = s.split('-').map(Number);
+  const t = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  return t.getUTCFullYear() === p[0] && t.getUTCMonth() === p[1] - 1 && t.getUTCDate() === p[2];
+}
+
+/* 备份文件可能来自旧版或被手工改过；先校验，坏条目只跳过，不让整页崩掉。 */
+function normalizeCase(c){
+  if (!c || typeof c !== 'object') return null;
+  if (typeof c.id !== 'string' || !c.id) return null;
+  if (!Array.isArray(c.state) || c.state.length !== 6
+      || !c.state.every(function(k){ return k === 'O' || k === 'Y' || k === 'X' || k === 'Z'; })) return null;
+  if (!validDateStr(c.date)) return null;
+  const hour = Number(c.hour);
+  if (!Number.isInteger(hour) || hour < 0 || hour > 11) return null;
+  let ziHalf = '', dayRule = '';
+  if (hour === 0){
+    ziHalf = (c.ziHalf === 'early') ? 'early' : (c.ziHalf === 'late' ? 'late' : null);
+    if (!ziHalf) return null;
+    dayRule = (c.dayRule === '0') ? '0' : '23';
+  }
+  const ts = (c.ts === null || c.ts === undefined) ? NaN : Number(c.ts);
+  const utcStart = (c.utcStart === null || c.utcStart === undefined) ? NaN : Number(c.utcStart);
+  const utcEnd = (c.utcEnd === null || c.utcEnd === undefined) ? NaN : Number(c.utcEnd);
+  const tzOffset = (c.tzOffset === null || c.tzOffset === undefined) ? NaN : Number(c.tzOffset);
+  return {
+    id:c.id,
+    ts:Number.isFinite(ts) ? ts : Date.now(),
+    date:c.date,
+    hour:hour,
+    ziHalf:ziHalf,
+    dayRule:dayRule,
+    state:c.state.slice(),
+    qinMode:(c.qinMode === 'own' ? 'own' : 'ben'),
+    jieqiSide:(c.jieqiSide === 'after' ? 'after' : 'before'),
+    note:(typeof c.note === 'string' ? c.note : ''),
+    ben:(typeof c.ben === 'string' ? c.ben : ''),
+    bian:(typeof c.bian === 'string' ? c.bian : ''),
+    sizhu:(typeof c.sizhu === 'string' ? c.sizhu : ''),
+    tz:(typeof c.tz === 'string' ? c.tz : ''),
+    tzOffset:Number.isFinite(tzOffset) ? tzOffset : null,
+    tzUnknown:!!c.tzUnknown || !c.tz || !Number.isFinite(tzOffset),
+    utcStart:Number.isFinite(utcStart) ? utcStart : null,
+    utcEnd:Number.isFinite(utcEnd) ? utcEnd : null
+  };
+}
 
 function loadCases(){
   try {
     if (typeof localStorage === 'undefined' || !localStorage) return [];
     const raw = localStorage.getItem(STORE_KEY);
     const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
+    if (!Array.isArray(arr)) return [];
+    return arr.map(normalizeCase).filter(Boolean);
   } catch (e){ return []; }
 }
+let cases = loadCases();
+
 function persist(){
   try {
     if (typeof localStorage === 'undefined' || !localStorage) return false;
@@ -1543,9 +1904,12 @@ function renderCases(){
     const t = new Date(c.ts);
     const when = t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate())
                + '　' + pad2(t.getHours()) + ':' + pad2(t.getMinutes());
+    const hname = c.hour === 0
+      ? (c.ziHalf === 'early' ? '早子' : '晚子') + '（' + (c.dayRule === '0' ? '0点换日' : '23点换日') + '）'
+      : ZHI[c.hour] + '时';
     const gua = esc(c.ben) + (c.bian ? ' → ' + esc(c.bian) : '<small>（静卦）</small>');
     return '<div class="case-item">'
-      + '<span class="case-when">' + when + '　' + ZHI[c.hour] + '时</span>'
+      + '<span class="case-when">' + when + '　' + hname + '</span>'
       + '<span class="case-gua">' + gua + '</span>'
       + '<span class="case-note">' + (c.note ? esc(c.note) : '') + '</span>'
       + '<span class="case-act">'
@@ -1558,19 +1922,26 @@ function renderCases(){
 function saveCase(){
   if (!lastRender) return;
   const pp = lastRender.pp;
-  const hy = Number(hourEl.value);
+  const hy = lastRender.hy;
   cases.push({
     id: 'c' + Date.now() + Math.random().toString(36).slice(2, 7),
     ts: Date.now(),
     date: dateEl.value,
     hour: hy,
+    ziHalf: hy === 0 ? lastRender.ziHalf : '',
+    dayRule: hy === 0 ? lastRender.dayRule : '',
     state: state.slice(),
     qinMode: qinMode,
     jieqiSide: jieqiSide,
     note: noteEl.value.trim(),
     ben: pp.ben.name,
     bian: pp.bian ? pp.bian.name : '',
-    sizhu: lastRender.sz.year.text + '年 '
+    tz: lastRender.tz ? lastRender.tz.name : '',
+    tzOffset: lastRender.tz ? lastRender.tz.offset : null,
+    tzUnknown: !!lastRender.tzUnknown,
+    utcStart: lastRender.span ? lastRender.span.start : null,
+    utcEnd: lastRender.span ? lastRender.span.end : null,
+    sizhu: (lastRender.sz.year.text || '—') + '年 '
          + (lastRender.sz.month.text || '—') + '月 '
          + lastRender.sz.day.text + '日 ' + lastRender.sz.hour.text + '时'
   });
@@ -1584,12 +1955,44 @@ function saveCase(){
 function openCase(id){
   const c = cases.filter(function(x){ return x.id === id; })[0];
   if (!c) return;
-  state = c.state.slice();
-  dateEl.value = c.date;
-  hourEl.value = String(c.hour);
-  noteEl.value = c.note || '';
-  qinMode = c.qinMode || 'ben';
-  jieqiSide = c.jieqiSide || 'before';
+  const n = normalizeCase(c);
+  if (!n){
+    storeHintEl.textContent = '这条卦例数据不完整，无法回看。';
+    return;
+  }
+
+  if (n.hour === 0){
+    ziDayRule = n.dayRule || '23';
+    if (!allowZi){
+      allowZi = true;
+      saveZiPrefs();
+    }
+    updateZiUI();
+    buildHours();
+  }
+
+  const rawHour = n.hour === 0
+    ? (n.ziHalf === 'early' ? '0E' : '0L')
+    : String(n.hour);
+  state = n.state.slice();
+  dateEl.value = n.date;
+  hourEl.value = rawHour;
+  noteEl.value = n.note;
+  qinMode = n.qinMode;
+  jieqiSide = n.jieqiSide;
+  tzUnknown = !!n.tzUnknown;
+
+  activeSpan = null;
+  if (Number.isFinite(n.utcStart) && Number.isFinite(n.utcEnd)){
+    activeSpan = {
+      key:spanKey(n.date, rawHour, n.hour === 0 ? ziDayRule : ''),
+      start:n.utcStart,
+      end:n.utcEnd,
+      tz:{ name:n.tz || '', offset:(n.tzOffset == null ? 0 : n.tzOffset) },
+      fixed:true
+    };
+  }
+
   paintRows();
   render();
   const r = document.getElementById('result');
@@ -1605,8 +2008,27 @@ function exportBackup(){
 }
 
 /* ---------- 导出图片 ---------- */
-function T(ctx, s, x, y, size, color, align, bold){
-  ctx.font = (bold ? '600 ' : '') + size + 'px "Songti SC", SimSun, serif';
+function T(ctx, s, x, y, size, color, align, bold, maxWidth){
+  let fs = size;
+  const setFont = function(){
+    ctx.font = (bold ? '600 ' : '') + fs + 'px "Songti SC", SimSun, serif';
+  };
+  setFont();
+  s = String(s);
+  if (maxWidth){
+    while (fs > 9 && ctx.measureText(s).width > maxWidth){
+      fs -= 0.5;
+      setFont();
+    }
+    if (ctx.measureText(s).width > maxWidth){
+      let cut = s;
+      while (cut.length > 1 && ctx.measureText(cut + '…').width > maxWidth){
+        cut = cut.slice(0, -1);
+      }
+      s = cut + '…';
+      setFont();
+    }
+  }
   ctx.fillStyle = color;
   ctx.textAlign = align || 'left';
   ctx.textBaseline = 'middle';
@@ -1630,7 +2052,7 @@ function buildChartCanvas(){
   const cols = hasBian ? [34,70,106,74,116,58,92,52,74,116,58,92] : [34,70,106,74,116,58,92,52];
   const cw = cols.reduce(function(a,b){ return a + b; }, 0);
   const W = cw + pad * 2;
-  const rowH = 46, headH = 64, titleH = 100, footerH = 66;
+  const rowH = 46, headH = 64, titleH = 118, footerH = 66;
   const tableTop = pad + titleH;
   const relLines = relationLines(pp, d.sz);
   const relH = relLines.length ? (38 + relLines.length * 20) : 0;
@@ -1663,21 +2085,32 @@ function buildChartCanvas(){
   }
 
   /* 起卦时间 */
-  const hRange = String(d.hy * 2 - 1).padStart(2, '0') + ':00–' + String(d.hy * 2 + 1).padStart(2, '0') + ':00';
+  const hsName = hourName(d.hy, d.ziHalf);
+  const hRange = hourRangeText(d.hy, d.ziHalf);
   let sx = pad;
   sx += T(ctx, '起卦　', sx, pad + 50, 12, '#8a6d3b') + 4;
-  T(ctx, '公历 ' + d.Y + '年' + d.Mo + '月' + d.D + '日 · ' + ZHI[d.hy] + '时（' + hRange + '）',
+  T(ctx, '公历 ' + d.Y + '年' + d.Mo + '月' + d.D + '日 · ' + hsName + '（' + hRange + '）',
     sx, pad + 50, 15, '#2b2622');
+
+  /* 时区与子时换日口径 */
+  const tzText = d.tzUnknown ? '未知（旧存档，按当前设备时区重算）' : tzLabel(d.tz);
+  sx = pad;
+  sx += T(ctx, '时区　', sx, pad + 72, 11.5, '#8a6d3b') + 4;
+  sx += T(ctx, tzText, sx, pad + 72, 12, '#2b2622');
+  if (d.hy === 0){
+    sx += T(ctx, '　·　', sx, pad + 72, 11.5, '#9a9084');
+    T(ctx, DAY_RULE_LABEL[d.dayRule], sx, pad + 72, 12, '#2b2622');
+  }
 
   /* 四柱与旬空 */
   const sz = d.sz;
   const kt = pp.kong.map(function(z){ return ZHI[z]; }).join('');
   sx = pad;
-  sx += T(ctx, '四柱　', sx, pad + 74, 12, '#8a6d3b') + 4;
-  sx += T(ctx, sz.year.text + '年　' + (sz.month.text || '—') + '月　'
-        + sz.day.text + '日　' + sz.hour.text + '时', sx, pad + 74, 15, '#2b2622') + 26;
-  sx += T(ctx, '旬空　', sx, pad + 74, 12, '#8a6d3b') + 4;
-  T(ctx, kt, sx, pad + 74, 15, '#2b2622');
+  sx += T(ctx, '四柱　', sx, pad + 96, 12, '#8a6d3b') + 4;
+  sx += T(ctx, (sz.year.text || '—') + '年　' + (sz.month.text || '—') + '月　'
+        + sz.day.text + '日　' + sz.hour.text + '时', sx, pad + 96, 15, '#2b2622') + 26;
+  sx += T(ctx, '旬空　', sx, pad + 96, 12, '#8a6d3b') + 4;
+  T(ctx, kt, sx, pad + 96, 15, '#2b2622');
 
   /* 表头 */
   const cx = [];
@@ -1688,22 +2121,22 @@ function buildChartCanvas(){
   const h1 = tableTop, h2 = tableTop + 32, t0 = tableTop + headH;
   const line = function(yy){ ctx.beginPath(); ctx.moveTo(xL, yy + .5); ctx.lineTo(xR, yy + .5); ctx.stroke(); };
 
-  T(ctx, '位', cx[0], h1 + 16, 12, '#8a6d3b', 'center');
-  T(ctx, '六神', cx[1], h1 + 16, 12, '#8a6d3b', 'center');
-  T(ctx, '伏神', cx[2], h1 + 16, 12, '#8a6d3b', 'center');
-  T(ctx, '本　　卦', (bx[3] + bx[7]) / 2, h1 + 16, 12, '#8a6d3b', 'center');
-  T(ctx, '世应', cx[7], h1 + 16, 12, '#8a6d3b', 'center');
-  if (hasBian) T(ctx, '变　　卦', (bx[8] + bx[12]) / 2, h1 + 16, 12, '#8a6d3b', 'center');
+  T(ctx, '位', cx[0], h1 + 32, 12, '#8a6d3b', 'center', false, cols[0] - 6);
+  T(ctx, '六神', cx[1], h1 + 32, 12, '#8a6d3b', 'center', false, cols[1] - 6);
+  T(ctx, '伏神', cx[2], h1 + 32, 12, '#8a6d3b', 'center', false, cols[2] - 6);
+  T(ctx, '本　　卦', (bx[3] + bx[7]) / 2, h1 + 16, 12, '#8a6d3b', 'center', false, bx[7] - bx[3] - 8);
+  T(ctx, '世应', cx[7], h1 + 32, 12, '#8a6d3b', 'center', false, cols[7] - 6);
+  if (hasBian) T(ctx, '变　　卦', (bx[8] + bx[12]) / 2, h1 + 16, 12, '#8a6d3b', 'center', false, bx[12] - bx[8] - 8);
 
-  T(ctx, '六亲', cx[3], h2 + 14, 12, '#8a6d3b', 'center');
-  T(ctx, '纳甲', cx[4], h2 + 14, 12, '#8a6d3b', 'center');
-  T(ctx, '旺衰', cx[5], h2 + 14, 12, '#8a6d3b', 'center');
-  T(ctx, '爻象', cx[6], h2 + 14, 12, '#8a6d3b', 'center');
+  T(ctx, '六亲', cx[3], h2 + 16, 12, '#8a6d3b', 'center', false, cols[3] - 6);
+  T(ctx, '纳甲', cx[4], h2 + 16, 12, '#8a6d3b', 'center', false, cols[4] - 6);
+  T(ctx, '旺衰', cx[5], h2 + 16, 12, '#8a6d3b', 'center', false, cols[5] - 6);
+  T(ctx, '爻象', cx[6], h2 + 16, 12, '#8a6d3b', 'center', false, cols[6] - 6);
   if (hasBian){
-    T(ctx, '六亲', cx[8], h2 + 14, 12, '#8a6d3b', 'center');
-    T(ctx, '纳甲', cx[9], h2 + 14, 12, '#8a6d3b', 'center');
-    T(ctx, '旺衰', cx[10], h2 + 14, 12, '#8a6d3b', 'center');
-    T(ctx, '爻象', cx[11], h2 + 14, 12, '#8a6d3b', 'center');
+    T(ctx, '六亲', cx[8], h2 + 16, 12, '#8a6d3b', 'center', false, cols[8] - 6);
+    T(ctx, '纳甲', cx[9], h2 + 16, 12, '#8a6d3b', 'center', false, cols[9] - 6);
+    T(ctx, '旺衰', cx[10], h2 + 16, 12, '#8a6d3b', 'center', false, cols[10] - 6);
+    T(ctx, '爻象', cx[11], h2 + 16, 12, '#8a6d3b', 'center', false, cols[11] - 6);
   }
   line(tableTop + 31);
   line(t0);
@@ -1727,26 +2160,26 @@ function buildChartCanvas(){
     const gz = pp.najia[i];
     const kong = !!kongSet[ZHI.indexOf(gz[1])];
 
-    T(ctx, POS[i], cx[0], cy, 14, '#8a6d3b', 'center');
-    T(ctx, pp.shen[i], cx[1], cy, 14, '#2b2622', 'center');
-    if (pp.fu[i]) T(ctx, pp.fu[i].qin + pp.fu[i].gz + pp.fu[i].wx, cx[2], cy, 12.5, '#8a6d3b', 'center');
+    T(ctx, POS[i], cx[0], cy, 14, '#8a6d3b', 'center', false, cols[0] - 6);
+    T(ctx, pp.shen[i], cx[1], cy, 14, '#2b2622', 'center', false, cols[1] - 6);
+    if (pp.fu[i]) T(ctx, pp.fu[i].qin + pp.fu[i].gz + pp.fu[i].wx, cx[2], cy, 12.5, '#8a6d3b', 'center', false, cols[2] - 8);
     else T(ctx, '—', cx[2], cy, 13, '#d8d0c2', 'center');
-    T(ctx, pp.qin[i], cx[3], cy, 15, '#2b2622', 'center');
+    T(ctx, pp.qin[i], cx[3], cy, 15, '#2b2622', 'center', false, cols[3] - 6);
 
     const naText = gz + ZHI_WX[gz[1]];
     if (kong){
-      T(ctx, naText, cx[4] - 12, cy, 15, '#2b2622', 'center');
+      T(ctx, naText, cx[4] - 12, cy, 15, '#2b2622', 'center', false, cols[4] - 54);
       ctx.strokeStyle = '#ddd3c2';
       ctx.strokeRect(cx[4] + 16.5, cy - 8.5, 22, 17);
       T(ctx, '空', cx[4] + 27.5, cy, 10, '#9a9084', 'center');
     } else {
-      T(ctx, naText, cx[4], cy, 15, '#2b2622', 'center');
+      T(ctx, naText, cx[4], cy, 15, '#2b2622', 'center', false, cols[4] - 6);
     }
 
     drawBar(ctx, cx[6], cy, pp.bits[i], pp.moving[i]);
     if (pp.moving[i]) T(ctx, pp.bits[i] ? '○' : '×', cx[6] + 37, cy, 13, '#a3352a', 'center', true);
 
-    T(ctx, wangShuai(monthWx, ZHI_WX[gz[1]]) || '·', cx[5], cy, 14, '#8a6d3b', 'center');
+    T(ctx, wangShuai(monthWx, ZHI_WX[gz[1]]) || '·', cx[5], cy, 14, '#8a6d3b', 'center', false, cols[5] - 6);
 
     if (i + 1 === pp.ben.shi || i + 1 === pp.ben.ying){
       const s = (i + 1 === pp.ben.shi) ? '世' : '应';
@@ -1758,9 +2191,9 @@ function buildChartCanvas(){
     if (hasBian){
       const gzB = pp.bianNajia[i];
       if (pp.moving[i]){
-        T(ctx, (qinMode === 'own' ? pp.bianQinOwn[i] : pp.bianQinBen[i]), cx[8], cy, 15, '#2b2622', 'center');
-        T(ctx, gzB + ZHI_WX[gzB[1]], cx[9], cy, 15, '#2b2622', 'center');
-        T(ctx, wangShuai(monthWx, ZHI_WX[gzB[1]]) || '·', cx[10], cy, 14, '#8a6d3b', 'center');
+        T(ctx, (qinMode === 'own' ? pp.bianQinOwn[i] : pp.bianQinBen[i]), cx[8], cy, 15, '#2b2622', 'center', false, cols[8] - 6);
+        T(ctx, gzB + ZHI_WX[gzB[1]], cx[9], cy, 15, '#2b2622', 'center', false, cols[9] - 6);
+        T(ctx, wangShuai(monthWx, ZHI_WX[gzB[1]]) || '·', cx[10], cy, 14, '#8a6d3b', 'center', false, cols[10] - 6);
       } else {
         T(ctx, '·', cx[8], cy, 13, '#d8d0c2', 'center');
         T(ctx, '·', cx[9], cy, 13, '#d8d0c2', 'center');
@@ -1794,11 +2227,17 @@ function buildChartCanvas(){
     fx += T(ctx, '所问　', fx, fy, 12, '#8a6d3b') + 4;
     T(ctx, noteText, fx, fy, 14, '#2b2622');
   }
-  T(ctx, '六爻装卦 · 生成于 ' + (function(){
-      const t = new Date();
-      return t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate())
-           + ' ' + pad2(t.getHours()) + ':' + pad2(t.getMinutes());
-    })(), xR, fy + 22, 11, '#9a9084', 'right');
+  const generatedAt = (function(){
+    const t = new Date();
+    return t.getFullYear() + '-' + pad2(t.getMonth()+1) + '-' + pad2(t.getDate())
+         + ' ' + pad2(t.getHours()) + ':' + pad2(t.getMinutes());
+  })();
+  if (imageSign){
+    T(ctx, '仙客六爻', pad, fy + 22, 11.5, '#8a6d3b');
+    T(ctx, '生成于 ' + generatedAt, xR, fy + 22, 11, '#9a9084', 'right');
+  } else {
+    T(ctx, '六爻装卦 · 生成于 ' + generatedAt, xR, fy + 22, 11, '#9a9084', 'right');
+  }
 
   return cv;
 }
@@ -1857,15 +2296,19 @@ document.getElementById('fileRestore').addEventListener('change', function(){
       const data = JSON.parse(String(fr.result));
       const arr = Array.isArray(data) ? data : (data && Array.isArray(data.cases) ? data.cases : null);
       if (!arr) throw new Error('bad');
-      const ids = {};
+      const ids = Object.create(null);
       cases.forEach(function(c){ ids[c.id] = 1; });
-      let added = 0;
+      let added = 0, skipped = 0;
       arr.forEach(function(c){
-        if (c && c.id && c.state && !ids[c.id]){ cases.push(c); ids[c.id] = 1; added++; }
+        const n = normalizeCase(c);
+        if (!n || ids[n.id]) { if (!n) skipped++; return; }
+        cases.push(n); ids[n.id] = 1; added++;
       });
-      persist();
+      const ok = persist();
       renderCases();
-      storeHintEl.textContent = '导入完成，新增 ' + added + ' 条。';
+      storeHintEl.textContent = '导入完成，新增 ' + added + ' 条'
+        + (skipped ? '，跳过 ' + skipped + ' 条无效数据' : '')
+        + (ok ? '。' : '；但浏览器本地存储失败，请先导出备份。');
     } catch (e){
       storeHintEl.textContent = '导入失败：这个文件不是本工具的备份格式。';
     }
@@ -1893,6 +2336,19 @@ fillNow(false);
 paintRows();
 render();
 renderCases();
+</script>
+<script>
+/* 在线访问时注册离线缓存；用本地文件（file://）打开时自动跳过，不影响任何现有用法 */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  var p = location.protocol;
+  var h = location.hostname;
+  if (p !== 'https:' && p !== 'http:') return;
+  if (p === 'http:' && h !== 'localhost' && h !== '127.0.0.1') return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+})();
 </script>
 </body>
 </html>
